@@ -4,12 +4,14 @@ class map:
     '''
     def __init__(self, handle):
     #Pacman map is 28 by 31 just by url http://upload.wikimedia.org/wikipedia/en/5/59/Pac-man.png
-    with open(handle) as f:
-        self.grid = list(f.readlines())
-        self.grid[x] = list(self.grid[x]) for x in range(len(self.grid))
-        for x in range(len(self.grid)):
-            for y in range(len(self.grid[x])):
-                self.grid[x][y] = tile(self.grid[x][y])
+        with open(handle) as f:
+            self.grid = list(f.readlines())
+            self.grid[z] = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
+            print("reached")
+            for x in range(len(self.grid)):
+                for y in range(len(self.grid[x])):
+                    print(self.grid[x][y])
+                    self.grid[x][y] = tile(self.grid[x][y])
       
 class tile:
     '''
