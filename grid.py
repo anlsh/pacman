@@ -3,7 +3,7 @@ class map:
     Simple class to read a map from a text file and parse it
     '''
     def __init__(self, handle):
-    #Pacman map is 26 by 29 just by url http://upload.wikimedia.org/wikipedia/en/5/59/Pac-man.png
+    #Pacman map is 28 by 31 just by url http://upload.wikimedia.org/wikipedia/en/5/59/Pac-man.png
     with open(handle) as f:
         self.grid = list(f.readlines())
         self.grid[x] = list(self.grid[x]) for x in range(len(self.grid))
