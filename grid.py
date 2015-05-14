@@ -1,4 +1,6 @@
-class Map:
+from pyglet import image, sprite
+
+class Grid:
     '''
     Simple class to read a map from a text file and parse it
     '''
@@ -15,17 +17,30 @@ class Tile:
     '''
     class to represent a tile object
     '''
-    def __init__(self, param):
+    def __init__(self, param, batch=None):
         '''
         parameters -- b = block, d = dot, p = Pup
         warp tiles should be specified as *u* where u is not another
         established parameter, where each warp tile will warp to the 
         other tile with param *u*
         '''
-        self.imglist = {"b":"block.png", "d":"dot.png", "p":"Pup.png", "e":"empty.png"}
-        
-        self.entity = None
+        self.imglist = {"b": "block.png", "d": "dot.png", "p": "pup.png", "e": "empty.png"}
+        self.sprite = None
+
         self.id = param
+
+        self.reload_img(batch)
+
+    def reload_img(self, batch=None):
+        if self.sprite is not None:
+            self.sprite.delete()
+
+        img = image.load(self.imglist[self.id])
+        self.sprite = sprite.Sprite(img, batch=batch)
+
+    def eat(self):
+        self.id = "e"
+        self.reload_img()
     
-    def draw(self, context):
+    def draw(self):
         raise NotImplementedError
