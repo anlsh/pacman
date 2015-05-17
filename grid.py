@@ -24,7 +24,7 @@ class Tile:
         established parameter, where each warp tile will warp to the 
         other tile with param *u*
         '''
-        self.imglist = {"b": "block.png", "d": "dot.png", "p": "pup.png", "e": "empty.png"}
+        self.imglist = {"b": "block.png", "d": "dot.png", "p": "pup.png", "e": "empty.png", "w": "warp.png"}
         self.sprite = None
 
         self.id = param
@@ -35,8 +35,12 @@ class Tile:
         if self.sprite is not None:
             self.sprite.delete()
 
-        img = image.load(self.imglist[self.id])
-        self.sprite = sprite.Sprite(img, batch=batch)
+        try:
+            img = image.load(self.imglist[self.id])
+            self.sprite = sprite.Sprite(img, batch=batch)
+
+        except FileNotFoundError:
+            pass
 
     def eat(self):
         self.id = "e"
