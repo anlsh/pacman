@@ -45,13 +45,13 @@ class Map:
 
                 if u == "b":
                     glColor3f(0, 0, 1)
-
+                    '''
                     self.glVertex2i(x*self.gd, y*self.gd)
                     self.glVertex2i((x+1)*self.gd, y*self.gd)
                     self.glVertex2i((x+1)*self.gd, (y+1)*self.gd)
                     self.glVertex2i(x*self.gd, (y+1)*self.gd)
-                    
-                    glColor3f(0, .5, .75)
+                    '''
+                    #glColor3f(0, .5, .75)
 
                     right = True
                     try:
@@ -78,7 +78,7 @@ class Map:
                         pass
 
                     #I dont want bordering on the next two, the others give a nice shading effect
-                    down = False
+                    #down = False
                     if down:
                         self.draw_rect(x*self.gd, y*self.gd, self.gd, self.lw)
 
@@ -88,7 +88,7 @@ class Map:
                     except IndexError:
                         pass
 
-                    left = False
+                    #left = False
 
                     if left:
                         self.draw_rect(x*self.gd, y*self.gd, self.lw, self.gd)
