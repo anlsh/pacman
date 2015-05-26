@@ -4,7 +4,6 @@ from map import Map
 import pyglet
 from pyglet.gl import *
 from pyglet.window import key
-#
 
 class Driver(pyglet.window.Window):
 
