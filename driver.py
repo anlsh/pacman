@@ -1,50 +1,30 @@
 __author__ = 'anish'
-from grid import Map
+from map import Map
 
 import pyglet
 from pyglet.gl import *
 from pyglet.window import key
 
-'''
-throwaway driver for inconsequential tasks
-'''
-sx = 28*16
-sy = 31*16 - 32
-window = pyglet.window.Window(sx, sy)
 
-map = Map("map_classic.txt")
-py = 1
-px = 1
-@window.event
-def on_key_press(symbol, mods):
-    global px
-    global py
-    if symbol == key.A:
-        px = 1
-        py = 1
-    if symbol == key.UP:
-        py += 1
-    if symbol == key.RIGHT:
-        px += 1
-    if symbol == key.DOWN:
-        py -= 1
-    if symbol == key.LEFT:
-        px -= 1
+class Driver(pyglet.window.Window):
 
-@window.event
-def on_draw():
-    window.clear()
-    map.draw()
+    def __init__(self, width, length, gd):
+        super().__init__(width, length)
+        self.w = width
+        self.l = length
+        self.map = Map("map_classic.txt", gd)
 
-    global px
-    global py
-    glColor3f(0, 1, 0)
-    glBegin(GL_QUADS)
-    glVertex2i(px*16, py*16)
-    glVertex2i(px*16+16, py*16)
-    glVertex2i(px*16+16, py*16+16)
-    glVertex2i(px*16, py*16+16)
-    glEnd()
+    def update(self, dt):
+        self.clear()
+        self.push_handlers(self.map.keys)
+        for x in self.map.players:
+            self.push_handlers(x.keys)
+        self.map.update()
 
 if __name__ == "__main__":
+    gd = 24
+    game = Driver(28*gd, 31*gd-32, gd)
+
+    pyglet.clock.schedule_interval(game.update, 1/60)
+    pyglet.clock.schedule(game.update)
     pyglet.app.run()

@@ -1,26 +1,34 @@
-from pyglet import image, sprite
+from pyglet.window import key
 from pyglet.gl import *
 from pyglet.gl.gl import glVertex2i
-
+from entity import Player
 
 class Map:
     '''
     Simple class to read a map from a text file and parse it
     '''
-    def __init__(self, handle):
+    def __init__(self, handle, gd):
     #Pacman map is 28 by 31 just by url http://upload.wikimedia.org/wikipedia/en/5/59/Pac-man.png
-        self.gd = 16
+        self.gd = gd
         self.lw = 2
         self.dd = 4
         self.pd = 6
         self.xoff = self.yoff = 0
+        self.keys = key.KeyStateHandler()
     
         with open(handle) as f:
             self.grid = list(reversed(f.readlines()))
             self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
-            
+
+        self.players = [Player([key.W, key.A, key.S, key.D], self.gd, self.gd, self.grid, self.gd)]
+
     def draw(self):
         self.draw_map()
+        for p in self.players:
+            glColor3f(0, 1, 0)
+            glBegin(GL_QUADS)
+            self.draw_rect(p.x + 2, p.y + 2, self.gd - 4, self.gd - 4)
+            glEnd()
 
     def draw_rect(self, x, y, w, h):
         x = int(x)
@@ -33,8 +41,8 @@ class Map:
         self.glVertex2i(x, y+h)
 
     def glVertex2i(self, x, y):
-        glVertex2i(self.xoff + x, self.yoff + y)
-        
+        glVertex2i(int(self.xoff + x), int(self.yoff + y))
+
     def draw_map(self):
 
         glBegin(GL_QUADS)
@@ -45,13 +53,6 @@ class Map:
 
                 if u == "b":
                     glColor3f(0, 0, 1)
-                    '''
-                    self.glVertex2i(x*self.gd, y*self.gd)
-                    self.glVertex2i((x+1)*self.gd, y*self.gd)
-                    self.glVertex2i((x+1)*self.gd, (y+1)*self.gd)
-                    self.glVertex2i(x*self.gd, (y+1)*self.gd)
-                    '''
-                    #glColor3f(0, .5, .75)
 
                     right = True
                     try:
@@ -116,3 +117,10 @@ class Map:
                                    self.pd, self.pd)
 
         glEnd()
+
+    def update(self):
+
+        for p in self.players:
+            p.update()
+
+        self.draw()
