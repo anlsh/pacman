@@ -2,7 +2,7 @@ from pyglet.window import key
 from pyglet.gl import *
 from pyglet.gl.gl import glVertex2i
 from entity import Player
-
+#
 class Map:
     '''
     Simple class to read a map from a text file and parse it
