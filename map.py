@@ -4,6 +4,7 @@ from pyglet.gl.gl import glVertex2i
 from entity import Player
 from math import radians as r
 
+
 class Map:
 
     def __init__(self, handle, gd):
