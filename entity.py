@@ -6,28 +6,28 @@ from math import sin, cos, radians as r
 
 class Entity:
 
-    def __init__(self, x, y, map, gd):
+    def __init__(self, x, y, map):
         self.want_theta = -1
         self.theta = -1
         self.sunit = 1
         self.x = x
         self.y = y
         self.map = map
-        self.gd = gd
+        self.gd = map.gd
 
         self.block_right = self.block_left = self.block_up = self.block_down = False
 
     def update_movement_possibilities(self):
 
-        self.block_right = self.map[int(self.y / self.gd)][int((self.x + self.gd) / self.gd)] == "b" or \
-            self.map[int((self.y + self.gd - 1) / self.gd)][int((self.x + self.gd) / self.gd)] == "b"
-        self.block_left = self.map[int(self.y / self.gd)][int((self.x - 1) / self.gd)] == "b" or \
-            self.map[int((self.y + self.gd - 1) / self.gd)][int((self.x - 1) / self.gd)] == "b"
+        self.block_right = self.map.grid[int(self.y / self.gd)][int((self.x + self.gd) / self.gd)] == "b" or \
+            self.map.grid[int((self.y + self.gd - 1) / self.gd)][int((self.x + self.gd) / self.gd)] == "b"
+        self.block_left = self.map.grid[int(self.y / self.gd)][int((self.x - 1) / self.gd)] == "b" or \
+            self.map.grid[int((self.y + self.gd - 1) / self.gd)][int((self.x - 1) / self.gd)] == "b"
 
-        self.block_up = self.map[int((self.y + self.gd) / self.gd)][int(self.x / self.gd)] == "b" or \
-            self.map[int((self.y + self.gd) / self.gd)][int((self.x + self.gd - 1) / self.gd)] == "b"
-        self.block_down = self.map[int((self.y - 1) / self.gd)][int(self.x / self.gd)] == "b" or \
-            self.map[int((self.y - 1) / self.gd)][int((self.x + self.gd - 1) / self.gd)] == "b"
+        self.block_up = self.map.grid[int((self.y + self.gd) / self.gd)][int(self.x / self.gd)] == "b" or \
+            self.map.grid[int((self.y + self.gd) / self.gd)][int((self.x + self.gd - 1) / self.gd)] == "b"
+        self.block_down = self.map.grid[int((self.y - 1) / self.gd)][int(self.x / self.gd)] == "b" or \
+            self.map.grid[int((self.y - 1) / self.gd)][int((self.x + self.gd - 1) / self.gd)] == "b"
 
     def update(self):
 
@@ -70,12 +70,12 @@ class Entity:
         self.want_theta = r(90)
 
     def down(self):
-        self.dy = self.want_theta = r(270)
+        self.want_theta = r(270)
 
 
 class Player(Entity):
-    def __init__(self, cscheme, x, y, map, gd):
-        super().__init__(x, y, map, gd)
+    def __init__(self, cscheme, x, y, map):
+        super().__init__(x, y, map)
         self.cscheme = cscheme
         self.keys = key.KeyStateHandler()
 

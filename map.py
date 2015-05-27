@@ -2,6 +2,7 @@ from pyglet.window import key
 from pyglet.gl import *
 from pyglet.gl.gl import glVertex2i
 from entity import Player
+from math import radians as r
 
 class Map:
     '''
@@ -13,6 +14,7 @@ class Map:
         self.lw = 2
         self.dd = 4
         self.pd = 6
+        self.score = 0
         self.xoff = self.yoff = 0
         self.keys = key.KeyStateHandler()
     
@@ -20,15 +22,15 @@ class Map:
             self.grid = list(reversed(f.readlines()))
             self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
 
-        self.players = [Player([key.W, key.A, key.S, key.D], self.gd, self.gd, self.grid, self.gd)]
+        self.players = [Player([key.W, key.A, key.S, key.D], self.gd, self.gd, self)]
 
     def draw(self):
+        glBegin(GL_QUADS)
         self.draw_map()
         for p in self.players:
             glColor3f(0, 1, 0)
-            glBegin(GL_QUADS)
             self.draw_rect(p.x + 2, p.y + 2, self.gd - 4, self.gd - 4)
-            glEnd()
+        glEnd()
 
     def draw_rect(self, x, y, w, h):
         x = int(x)
@@ -44,8 +46,6 @@ class Map:
         glVertex2i(int(self.xoff + x), int(self.yoff + y))
 
     def draw_map(self):
-
-        glBegin(GL_QUADS)
 
         for y in range(len(self.grid)):
             for x in range(len(self.grid[y]))[::-1]:
@@ -116,11 +116,20 @@ class Map:
                     self.draw_rect(x*self.gd + ((self.gd-self.pd)/2), y*self.gd + ((self.gd-self.pd)/2),
                                    self.pd, self.pd)
 
-        glEnd()
-
     def update(self):
 
         for p in self.players:
             p.update()
 
+            if p.theta == r(0) or p.theta == r(90):
+                if self.grid[int((p.y + self.gd / 4) / self.gd)][int((p.x + self.gd / 4) / self.gd)] == "d":
+                    self.eat(int((p.y + self.gd / 4) / self.gd), int((p.x + self.gd / 4) / self.gd))
+            else:
+                if self.grid[int((p.y + self.gd / 2) / self.gd)][int((p.x + self.gd / 2) / self.gd)] == "d":
+                    self.eat(int((p.y + self.gd / 2) / self.gd), int((p.x + self.gd / 2) / self.gd))
+
         self.draw()
+        
+    def eat(self, y, x):
+        self.grid[y][x] = "e"
+        self.score += 1
