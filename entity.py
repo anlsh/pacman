@@ -91,3 +91,9 @@ class Player(Entity):
             self.right()
 
         Entity.update(self)
+
+
+class Ghost(Entity):
+
+    def __init__(self, x, y, map):
+        super().__init__(x, y, map)

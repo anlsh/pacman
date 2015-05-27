@@ -26,7 +26,7 @@ class Driver(pyglet.window.Window):
 
 if __name__ == "__main__":
     gd = 24
-    game = Driver(28*gd, 31*gd-32, gd)
+    game = Driver(28*gd, 30*gd, gd)
 
     pyglet.clock.schedule_interval(game.update, 1/60)
     pyglet.clock.schedule(game.update)

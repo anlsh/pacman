@@ -5,9 +5,7 @@ from entity import Player
 from math import radians as r
 
 class Map:
-    '''
-    Simple class to read a map from a text file and parse it
-    '''
+
     def __init__(self, handle, gd):
     #Pacman map is 28 by 31 just by url http://upload.wikimedia.org/wikipedia/en/5/59/Pac-man.png
         self.gd = gd
@@ -129,7 +127,7 @@ class Map:
                     self.eat(int((p.y + self.gd / 2) / self.gd), int((p.x + self.gd / 2) / self.gd))
 
         self.draw()
-        
+
     def eat(self, y, x):
         self.grid[y][x] = "e"
         self.score += 1
