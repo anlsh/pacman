@@ -6,6 +6,7 @@ from math import radians as r
 from Common import *
 from functools import partial
 
+
 class Map:
 
     def __init__(self, handle, gd):
