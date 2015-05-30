@@ -4,6 +4,8 @@ from map import Map
 import pyglet
 from pyglet.gl import *
 from pyglet.window import key
+import Common as c
+
 
 class Driver(pyglet.window.Window):
 
@@ -14,24 +16,23 @@ class Driver(pyglet.window.Window):
         self.map = Map("map_classic.txt", gd)
 
     def update(self, dt):
-        self.clear()
+
         self.push_handlers(self.map.keys)
         for x in self.map.players:
             self.push_handlers(x.keys)
         self.map.update()
 
-    def draw(self, dt):
+    def on_draw(self):
         self.clear()
         self.map.draw()
 
 if __name__ == "__main__":
-    gd = 24
-    game = Driver(28*gd, 30*gd, gd)
+    gd = c.GRID_DIM
+    game = Driver(28*gd, 29*gd, gd)
 
-    pyglet.clock.schedule_interval(game.update, 1/60)
+    pyglet.clock.schedule_interval(game.update, 1 / c.CLOCKS_PER_SEC)
     pyglet.clock.schedule(game.update)
 
-    #pyglet.clock.schedule_interval(game.draw, 1/60)
-    #pyglet.clock.schedule(game.draw)
+    pyglet.clock.set_fps_limit(60)
 
     pyglet.app.run()
