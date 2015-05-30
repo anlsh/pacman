@@ -1,8 +1,7 @@
 __author__ = 'anish'
 
-from pyglet.window import key
 from pyglet import image, sprite
-from math import sin, cos, radians as r
+from fractions import Fraction
 
 
 class Entity:
@@ -11,10 +10,8 @@ class Entity:
 
     def __init__(self, x, y, map):
 
-        self.x = x
-        self.y = y
-
-        self.sunit = 1 / 22
+        self.x = Fraction(x)
+        self.y = Fraction(y)
 
         self.map = map
         self.gd = map.gd

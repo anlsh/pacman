@@ -1,6 +1,9 @@
 __author__ = 'anish'
 
 from entity import *
+from pyglet.window import key
+from math import sin, cos, radians as r
+
 
 class Player(Entity):
 
@@ -14,6 +17,8 @@ class Player(Entity):
         self.last_theta = -1
         self.horizontal_mismatch = False
         self.vertical_mismatch = False
+
+        self.sunit = Fraction(1, 20)
 
         self.load_resources()
 
@@ -32,13 +37,13 @@ class Player(Entity):
 
     def update_movement_possibilities(self):
         self.can_right = True \
-            if self.map.grid[self.center[1].__int__()][self.center[0].__int__() + 1] != "b" else self.x % 1 < 0.5
+            if self.map.grid[int(self.y)][int(self.x) + 1] != "b" else self.x % 1 < 0.5
         self.can_left = True \
-            if self.map.grid[self.center[1].__int__()][self.center[0].__int__() - 1] != "b" else self.x % 1 > 0.5
+            if self.map.grid[int(self.y)][int(self.x) - 1] != "b" else self.x % 1 > 0.5
         self.can_up = True \
-            if self.map.grid[self.center[1].__int__() + 1][self.center[0].__int__()] != "b" else self.y % 1 < 0.5
+            if self.map.grid[int(self.y) + 1][int(self.x)] != "b" else self.y % 1 < 0.5
         self.can_down = True \
-            if self.map.grid[self.center[1].__int__() - 1][self.center[0].__int__()] != "b" else self.y % 1 > 0.5
+            if self.map.grid[int(self.y) - 1][int(self.x)] != "b" else self.y % 1 > 0.5
 
     def update(self):
 
@@ -52,51 +57,50 @@ class Player(Entity):
             self.want_theta = r(0)
 
         self.update_movement_possibilities()
-        self.center = [self.x, self.y]
         temp_theta = self.theta
 
         if self.want_theta == -1:
             return None
 
         if self.want_theta == r(0) and self.can_right:
-            if (self.map.grid[self.center[1].__int__()][(self.center[0] + self.sunit).__int__() + 1] != "b") \
+            if (self.map.grid[int(self.y)][int((self.x + self.sunit)) + 1] != "b") \
                 and ((self.theta == r(90) and self.y % 1 <= 0.5) or
                 (self.theta == r(270) and self.y % 1 >= 0.5) or
                 self.theta == r(180) or self.theta == -1):
                     self.theta = self.want_theta
 
         if self.want_theta == r(180) and self.can_left:
-            if (self.map.grid[self.center[1].__int__()][(self.center[0] - self.sunit).__int__() - 1] != "b") \
+            if (self.map.grid[int(self.y)][int((self.x - self.sunit)) - 1] != "b") \
                 and ((self.theta == r(90) and self.y % 1 <= 0.5) or
                 (self.theta == r(270) and self.y % 1 >= 0.5) or
                 self.theta == r(0) or self.theta == -1):
                     self.theta = self.want_theta
 
         if self.want_theta == r(90) and self.can_up:
-            if (self.map.grid[(self.center[1] + self.sunit).__int__() + 1][self.center[0].__int__()] != "b") \
+            if (self.map.grid[int((self.y + self.sunit)) + 1][int(self.x)] != "b") \
                 and ((self.theta == r(0) and self.x % 1 <= 0.5) or
                 (self.theta == r(180) and self.x % 1 >= 0.5) or
                 self.theta == r(270) or self.theta == -1):
                     self.theta = self.want_theta
 
         if self.want_theta == r(270) and self.can_down:
-            if (self.map.grid[(self.center[1] - self.sunit).__int__() - 1][self.center[0].__int__()] != "b") \
+            if (self.map.grid[int((self.y - self.sunit)) - 1][int(self.x)] != "b") \
                 and ((self.theta == r(0) and self.x % 1 <= 0.5) or
                 (self.theta == r(180) and self.x % 1 >= 0.5) or
                 self.theta == r(90) or self.theta == -1):
                     self.theta = self.want_theta
 
         if self.theta == r(0) and self.can_right:
-            self.x += self.sunit * cos(self.theta)
+            self.x += self.sunit * cos(self.theta).__int__()
 
         if self.theta == r(180) and self.can_left:
-            self.x += self.sunit * cos(self.theta)
+            self.x += self.sunit * cos(self.theta).__int__()
 
         if self.theta == r(90) and self.can_up:
-            self.y += self.sunit * sin(self.theta)
+            self.y += self.sunit * sin(self.theta).__int__()
 
         if self.theta == r(270) and self.can_down:
-            self.y += self.sunit * sin(self.theta)
+            self.y += self.sunit * sin(self.theta).__int__()
 
         if temp_theta != self.theta:
             self.last_theta = temp_theta
@@ -108,14 +112,14 @@ class Player(Entity):
                                         and (self.last_theta == r(90) or self.last_theta == r(270))
 
         if self.horizontal_mismatch:
-            if self.x % .5 != 0:
-                self.x += self.sunit * cos(self.last_theta)
+            if self.x % 1 != 0.5:
+                self.x += self.sunit * cos(self.last_theta).__int__()
             else:
                 self.horizontal_mismatch = False
 
         if self.vertical_mismatch:
-            if self.y % .5 != 0:
-                self.y += self.sunit * sin(self.last_theta)
+            if self.y % 1 != 0.5:
+                self.y += self.sunit * sin(self.last_theta).__int__()
             else:
                 self.vertical_mismatch = False
 

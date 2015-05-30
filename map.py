@@ -4,7 +4,7 @@ from pyglet.gl.gl import glVertex2i
 from player import Player
 from math import radians as r
 from Common import *
-
+from functools import partial
 
 class Map:
 
@@ -23,6 +23,9 @@ class Map:
             self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
 
         self.players = [Player([key.W, key.A, key.S, key.D], 1.5, 1.5, self)]
+
+        self.map_draw_functions = []
+        self.calculate_static_map()
 
     def draw(self):
         self.draw_map()
@@ -44,15 +47,16 @@ class Map:
     def glVertex2i(self, x, y):
         glVertex2i(int(self.xoff + x), int(self.yoff + y))
 
-    def draw_map(self):
+    def calculate_static_map(self):
 
+        self.map_draw_functions.append(partial(glColor3f, 0, 0, 1))
+        self.map_draw_functions.append(partial(glLineWidth, 4))
         for y in range(len(self.grid)):
 
             for x in range(len(self.grid[y]))[::-1]:
 
                 u = self.grid[y][x]
 
-                glColor3f(0, 0, 1)
                 if u == "b":
 
                     try:
@@ -72,51 +76,83 @@ class Map:
                     except BaseException:
                         empty_left = False
 
-                    glLineWidth(4)
                     if (empty_up or empty_down) and not empty_left and not empty_right:
-                        glBegin(GL_LINES)
-                        glVertex2i(x * self.gd, y * self.gd + self.gd // 2)
-                        glVertex2i(x * self.gd + self.gd, y * self.gd + self.gd // 2)
-                        glEnd()
+                        #glBegin(GL_LINES)
+                        self.map_draw_functions.append(partial(glBegin, GL_LINES))
+                        #glVertex2i(x * self.gd, y * self.gd + self.gd // 2)
+                        self.map_draw_functions.append(partial(glVertex2i, x * self.gd, y * self.gd + self.gd // 2))
+                        #glVertex2i(x * self.gd + self.gd, y * self.gd + self.gd // 2)
+                        self.map_draw_functions.append(partial(glVertex2i, x * self.gd + self.gd,
+                                                               y * self.gd + self.gd // 2))
+                        #glEnd()
+                        self.map_draw_functions.append(partial(glEnd))
 
                     elif (empty_left or empty_right) and not empty_up and not empty_down:
-                        glBegin(GL_LINES)
-                        glVertex2i(x * self.gd + self.gd // 2, y * self.gd)
-                        glVertex2i(x * self.gd + self.gd // 2, y * self.gd + self.gd)
-                        glEnd()
+                        #glBegin(GL_LINES)
+                        self.map_draw_functions.append(partial(glBegin, GL_LINES))
+                        #glVertex2i(x * self.gd + self.gd // 2, y * self.gd)
+                        self.map_draw_functions.append(partial(glVertex2i, x * self.gd + self.gd // 2, y * self.gd))
+                        #glVertex2i(x * self.gd + self.gd // 2, y * self.gd + self.gd)
+                        self.map_draw_functions.append(partial(glVertex2i, x * self.gd + self.gd // 2, y * self.gd + self.gd))
+                        #glEnd()
+                        self.map_draw_functions.append(partial(glEnd))
 
                     elif empty_up and empty_left and not empty_down and self.grid[y-1][x-1] != "b":
-                        draw_segment(x * self.gd + self.gd, y * self.gd, self.gd // 2, 90, 180)
+                        #draw_segment(x * self.gd + self.gd, y * self.gd, self.gd // 2, 90, 180)
+                        self.map_draw_functions.append(partial(draw_segment, x * self.gd + self.gd, y * self.gd, self.gd // 2, 90, 180))
 
                     elif empty_up and empty_right and not empty_down and self.grid[y-1][x+1] != "b":
-                        draw_segment(x * self.gd, y * self.gd, self.gd // 2, 0, 90)
+                        #draw_segment(x * self.gd, y * self.gd, self.gd // 2, 0, 90)
+                        self.map_draw_functions.append(partial(draw_segment, x * self.gd, y * self.gd, self.gd // 2, 0, 90))
 
                     elif empty_down and empty_left and not empty_up and self.grid[y+1][x-1] != "b":
-                        draw_segment(x * self.gd + self.gd, y * self.gd + self.gd, self.gd // 2, 180, 270)
+                        #draw_segment(x * self.gd + self.gd, y * self.gd + self.gd, self.gd // 2, 180, 270)
+                        self.map_draw_functions.append(partial(draw_segment, x * self.gd + self.gd, y * self.gd + self.gd, self.gd // 2, 180, 270))
 
                     elif empty_down and empty_right and not empty_up and self.grid[y+1][x+1] != "b":
-                        draw_segment(x * self.gd, y * self.gd + self.gd, self.gd // 2, 270, 360)
+                        #draw_segment(x * self.gd, y * self.gd + self.gd, self.gd // 2, 270, 360)
+                        self.map_draw_functions.append(partial(draw_segment, x * self.gd, y * self.gd + self.gd, self.gd // 2, 270, 360))
 
                     try:
                         if self.grid[y-1][x-1] != "b" and not empty_left and not empty_down:
-                            draw_segment(x * self.gd, y * self.gd, self.gd // 2, 0, 90)
+                            #draw_segment(x * self.gd, y * self.gd, self.gd // 2, 0, 90)
+                            self.map_draw_functions.append(partial(draw_segment, x * self.gd, y * self.gd, self.gd // 2,
+                                                                   0, 90))
                     except BaseException:
                         pass
                     try:
                         if self.grid[y-1][x+1] != "b" and not empty_right and not empty_down:
-                            draw_segment(x * self.gd + self.gd, y * self.gd, self.gd // 2, 90, 180)
+                            #draw_segment(x * self.gd + self.gd, y * self.gd, self.gd // 2, 90, 180)
+                            self.map_draw_functions.append(partial(draw_segment, x * self.gd + self.gd, y * self.gd,
+                                                                   self.gd // 2, 90, 180))
                     except BaseException:
                         pass
                     try:
                         if self.grid[y+1][x-1] != "b" and not empty_left and not empty_up:
-                            draw_segment(x * self.gd, y * self.gd + self.gd, self.gd // 2, 270, 360)
+                            #draw_segment(x * self.gd, y * self.gd + self.gd, self.gd // 2, 270, 360)
+                            self.map_draw_functions.append(partial(draw_segment, x * self.gd, y * self.gd + self.gd,
+                                                                   self.gd // 2, 270, 360))
                     except BaseException:
                         pass
                     try:
                         if self.grid[y+1][x+1] != "b" and not empty_right and not empty_up:
-                            draw_segment(x * self.gd + self.gd, y * self.gd + self.gd, self.gd // 2, 180, 270)
+                            #draw_segment(x * self.gd + self.gd, y * self.gd + self.gd, self.gd // 2, 180, 270)
+                            self.map_draw_functions.append(partial(draw_segment, x * self.gd + self.gd, y * self.gd +
+                                                                   self.gd, self.gd // 2, 180, 270))
                     except BaseException:
                         pass
+
+    def draw_map(self):
+
+        for f in self.map_draw_functions:
+            f()
+
+        for y in range(len(self.grid)):
+
+            for x in range(len(self.grid[y]))[::-1]:
+
+                u = self.grid[y][x]
+                pass
 
     def update(self):
 
