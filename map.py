@@ -1,9 +1,9 @@
 from pyglet.window import key
 from pyglet.gl import *
 from pyglet.gl.gl import glVertex2i
-from entity import Player
+from player import Player
 from math import radians as r
-import Common as c
+from Common import *
 
 
 class Map:
@@ -22,12 +22,10 @@ class Map:
             self.grid = list(reversed(f.readlines()))
             self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
 
-        self.players = [Player([key.W, key.A, key.S, key.D], 1, 1, self)]
+        self.players = [Player([key.W, key.A, key.S, key.D], 1.5, 1.5, self)]
 
     def draw(self):
-        glBegin(GL_QUADS)
         self.draw_map()
-        glEnd()
         for p in self.players:
             p.draw()
 
@@ -36,10 +34,12 @@ class Map:
         y = int(y)
         w = int(w)
         h = int(h)
+        glBegin(GL_QUADS)
         self.glVertex2i(x, y)
         self.glVertex2i(x+w, y)
         self.glVertex2i(x+w, y+h)
         self.glVertex2i(x, y+h)
+        glEnd()
 
     def glVertex2i(self, x, y):
         glVertex2i(int(self.xoff + x), int(self.yoff + y))
@@ -47,8 +47,76 @@ class Map:
     def draw_map(self):
 
         for y in range(len(self.grid)):
+
             for x in range(len(self.grid[y]))[::-1]:
+
                 u = self.grid[y][x]
+
+                glColor3f(0, 0, 1)
+                if u == "b":
+
+                    try:
+                        empty_up = self.grid[y+1][x] != "b"
+                    except BaseException:
+                        empty_up = False
+                    try:
+                        empty_down = self.grid[y-1][x] != "b"
+                    except BaseException:
+                        empty_down = False
+                    try:
+                        empty_right = self.grid[y][x+1] != "b"
+                    except BaseException:
+                        empty_right = False
+                    try:
+                        empty_left = self.grid[y][x-1] != "b"
+                    except BaseException:
+                        empty_left = False
+
+                    glLineWidth(4)
+                    if (empty_up or empty_down) and not empty_left and not empty_right:
+                        glBegin(GL_LINES)
+                        glVertex2i(x * self.gd, y * self.gd + self.gd // 2)
+                        glVertex2i(x * self.gd + self.gd, y * self.gd + self.gd // 2)
+                        glEnd()
+
+                    elif (empty_left or empty_right) and not empty_up and not empty_down:
+                        glBegin(GL_LINES)
+                        glVertex2i(x * self.gd + self.gd // 2, y * self.gd)
+                        glVertex2i(x * self.gd + self.gd // 2, y * self.gd + self.gd)
+                        glEnd()
+
+                    elif empty_up and empty_left and not empty_down and self.grid[y-1][x-1] != "b":
+                        draw_segment(x * self.gd + self.gd, y * self.gd, self.gd // 2, 90, 180)
+
+                    elif empty_up and empty_right and not empty_down and self.grid[y-1][x+1] != "b":
+                        draw_segment(x * self.gd, y * self.gd, self.gd // 2, 0, 90)
+
+                    elif empty_down and empty_left and not empty_up and self.grid[y+1][x-1] != "b":
+                        draw_segment(x * self.gd + self.gd, y * self.gd + self.gd, self.gd // 2, 180, 270)
+
+                    elif empty_down and empty_right and not empty_up and self.grid[y+1][x+1] != "b":
+                        draw_segment(x * self.gd, y * self.gd + self.gd, self.gd // 2, 270, 360)
+
+                    try:
+                        if self.grid[y-1][x-1] != "b" and not empty_left and not empty_down:
+                            draw_segment(x * self.gd, y * self.gd, self.gd // 2, 0, 90)
+                    except BaseException:
+                        pass
+                    try:
+                        if self.grid[y-1][x+1] != "b" and not empty_right and not empty_down:
+                            draw_segment(x * self.gd + self.gd, y * self.gd, self.gd // 2, 90, 180)
+                    except BaseException:
+                        pass
+                    try:
+                        if self.grid[y+1][x-1] != "b" and not empty_left and not empty_up:
+                            draw_segment(x * self.gd, y * self.gd + self.gd, self.gd // 2, 270, 360)
+                    except BaseException:
+                        pass
+                    try:
+                        if self.grid[y+1][x+1] != "b" and not empty_right and not empty_up:
+                            draw_segment(x * self.gd + self.gd, y * self.gd + self.gd, self.gd // 2, 180, 270)
+                    except BaseException:
+                        pass
 
     def update(self):
 
