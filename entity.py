@@ -1,6 +1,6 @@
 __author__ = 'anish'
 
-from pyglet import image, sprite   # although sprite is not used, it is imported here for all entites
+from pyglet import image
 from fractions import Fraction     # used to create accurate representations of position
 from common import *
 

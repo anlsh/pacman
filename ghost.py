@@ -103,4 +103,4 @@ class Ghost(Entity):
         :return: None
         '''
         # TODO Right now this just draws a box, I need to make it draw sprites
-        self.map.draw_rect(self.x * GRID_DIM - GRID_DIM / 2, self.y * GRID_DIM - GRID_DIM / 2, GRID_DIM, GRID_DIM)
+        self.map.draw_rectangle(self.x * GRID_DIM - GRID_DIM / 2, self.y * GRID_DIM - GRID_DIM / 2, GRID_DIM, GRID_DIM)

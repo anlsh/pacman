@@ -3,14 +3,15 @@ __author__ = 'anish'
 from entity import *
 from common import *
 from pyglet.window import key
+from sprite import Sprite
 from copy import copy
 
 
 class Player(Entity):
 
-    def __init__(self, cscheme, x, y, map):
+    def __init__(self, cscheme, x, y, game):
 
-        super().__init__(x, y, map)
+        super().__init__(x, y, game)
 
         # movement related variables specific to how a player move
         self.want_theta = None
@@ -50,7 +51,7 @@ class Player(Entity):
             self.sprites[i].anchor_y = self.sprites[i].width // 2
 
         # Convert the images in the array to sprites <pyglet>
-        self.sprites = [sprite.Sprite(i) for i in self.sprites]
+        self.sprites = [Sprite(i, self.map.graphics_group) for i in self.sprites]
 
         # Now store the sprites in a dictionary indexed by frame and rotation angle
         temp_sprites = self.sprites
@@ -59,7 +60,7 @@ class Player(Entity):
             angles = {}
             for x in [0, 90, 180, 270]:
                 angles[x] = copy(temp_sprites[frame])
-                angles[x].rotation = -x
+                angles[x].set_rotation(x)
 
             self.sprites[frame] = angles
 
@@ -205,5 +206,5 @@ class Player(Entity):
             self.sprites[int(self.count % 3)][self.theta].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
             self.sprites[int(self.count % 3)][self.theta].draw()
         except KeyError:
-            self.sprites[0][0].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
+            self.sprites[0][0].set_position(self.x * GRID_DIM, self.y * GRID_DIM)
             self.sprites[0][0].draw()
