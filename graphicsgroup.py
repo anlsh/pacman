@@ -45,6 +45,12 @@ class GraphicsGroup:
 
     def draw_segment(self, x, y, radius, start_theta, stop_theta, step=10):
 
+        # This method is a ridiculously massive bottleneck, single-handedly causing the FPS to periodically drop by
+        # 10-20. Because of that, I'm leaving it undone right now
+        # TODO For the love of god, optimise this method
+
+        return None
+
         glBegin(GL_LINE_STRIP)
         for i in range(step + 1):
             theta = start_theta + (stop_theta - start_theta) / step * i
