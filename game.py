@@ -1,7 +1,7 @@
 from pyglet.window import key
 from pyglet.gl import glColor3f
 from player import Player
-from ghost import Ghost
+from ghost import *
 from common import *
 from functools import partial
 from graphicsgroup import GraphicsGroup
@@ -11,9 +11,9 @@ class Game:
 
     def __init__(self, handle):
         '''
-        This is... a really big class. It parses a grid from a map file, and takes care of drawing the grid, updating
+        This is... a really big class. It parses a grid from a game file, and takes care of drawing the grid, updating
         entities, etc.
-        :param handle: The filename of the map to play
+        :param handle: The filename of the game to play
         :returns: Nothing
         '''
 
@@ -23,18 +23,18 @@ class Game:
         self.xoff = self.yoff = None
         self.graphics_group = GraphicsGroup(self, x=0, y=0)
 
-        # Open a map file and convert it into a grid. Somewhat confusingly, the tile at (x,y) on the grid is accessed
+        # Open a game file and convert it into a grid. Somewhat confusingly, the tile at (x,y) on the grid is accessed
         # by grid[y][x]. Up and right increase y and x respectively
         with open(handle) as f:
             self.grid = list(reversed(f.readlines()))
             self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
         
-        # Populate the map
-        # TODO Set spawn tiles for players and ghosts on the map
+        # Populate the game
+        # TODO Set spawn tiles for players and ghosts on the game
         self.players = [Player([key.W, key.A, key.S, key.D], 1.5, 1.5, self)]
-        self.ghosts = [Ghost(1.5, 1.5, self)]
+        self.ghosts = [Blinky(1.5, 1.5, self), Pinky(1.5, 1.5, self), Inky(1.5, 1.5, self), Clyde(1.5, 1.5, self)]
 
-        # Create a set of functions to loop through to draw a static map so a ton of constant conditionals aren't
+        # Create a set of functions to loop through to draw a static game so a ton of constant conditionals aren't
         # checked on ever iteration
         self.map_draw_functions = []
         self.calculate_static_map()
@@ -44,7 +44,7 @@ class Game:
 
     def draw(self):
 
-        # Draw the map, players, and ghosts
+        # Draw the game, players, and ghosts
         self.draw_map()
 
         for p in self.players:
@@ -57,9 +57,9 @@ class Game:
 
     def calculate_static_map(self):
 
-        # A bit of premature optimization, but I'm proud of it. This method should only be run once per (static) map
+        # A bit of premature optimization, but I'm proud of it. This method should only be run once per (static) game
         # instance. Instead of drawing the grid and having to check about a bazillion conditions which never change,
-        # this checks all of them once and creates functions using functools.partial() to draw the map which can be
+        # this checks all of them once and creates functions using functools.partial() to draw the game which can be
         # called quickly.
         # I'm not going to comment this method, that would take waaay too long. Maybe another day
         # TODO Comment this method
@@ -145,7 +145,7 @@ class Game:
 
     def draw_map(self):
 
-        #Draw the static map
+        #Draw the static game
         for f in self.map_draw_functions:
             f()
 

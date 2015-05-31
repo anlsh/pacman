@@ -42,7 +42,7 @@ class Player(Entity):
         a port is attempted
         '''
         # Slice out the needed region of the sprite sheet (32 x 32 Pac-Man sprites) <pyglet>
-        spritesheet = Entity.spritesheet.get_region(0, Entity.spritesheet.height - 32, 32, 3 * 32)
+        spritesheet = Entity.spritesheet.get_region(0, Entity.spritesheet.height - 32, 3 * 32, 32)
 
         # Convert the image into an array of images, and center their anchor points <pyglet>
         self.sprites = image.ImageGrid(spritesheet, 1, 3, item_width=32, item_height=32)
@@ -51,7 +51,7 @@ class Player(Entity):
             self.sprites[i].anchor_y = self.sprites[i].width // 2
 
         # Convert the images in the array to sprites <pyglet>
-        self.sprites = [Sprite(i, self.map.graphics_group) for i in self.sprites]
+        self.sprites = [Sprite(i, self.game.graphics_group) for i in self.sprites]
 
         # Now store the sprites in a dictionary indexed by frame and rotation angle
         temp_sprites = self.sprites
@@ -78,16 +78,16 @@ class Player(Entity):
         # Pac Man can actually start moving before he reaches the center of an open tile. To account for this, some
         # conditions besides whether the immediate tile is a block are taken into account
         self.can_right = True \
-            if self.map.grid[int(self.y)][int(self.x) + 1] != "b" else self.x % 1 < 0.5
+            if self.game.grid[int(self.y)][int(self.x) + 1] != "b" else self.x % 1 < 0.5
 
         self.can_left = True \
-            if self.map.grid[int(self.y)][int(self.x) - 1] != "b" else self.x % 1 > 0.5
+            if self.game.grid[int(self.y)][int(self.x) - 1] != "b" else self.x % 1 > 0.5
 
         self.can_up = True \
-            if self.map.grid[int(self.y) + 1][int(self.x)] != "b" else self.y % 1 < 0.5
+            if self.game.grid[int(self.y) + 1][int(self.x)] != "b" else self.y % 1 < 0.5
 
         self.can_down = True \
-            if self.map.grid[int(self.y) - 1][int(self.x)] != "b" else self.y % 1 > 0.5
+            if self.game.grid[int(self.y) - 1][int(self.x)] != "b" else self.y % 1 > 0.5
 
     def update(self):
 
@@ -130,25 +130,25 @@ class Player(Entity):
         #       an or statement with two cases is used
 
         if self.want_theta == 0 and self.can_right:
-            if self.theta == 180 or (self.map.grid[int(self.y)][int((self.x + self.speed)) + 1] != "b") \
+            if self.theta == 180 or (self.game.grid[int(self.y)][int((self.x + self.speed)) + 1] != "b") \
                 and ((self.theta == 90 and self.y % 1 <= 0.5) or
                 (self.theta == 270 and self.y % 1 >= 0.5) or self.theta is None):
                     self.theta = self.want_theta
 
         if self.want_theta == 180 and self.can_left:
-            if self.theta == 0 or (self.map.grid[int(self.y)][int((self.x - self.speed)) - 1] != "b") \
+            if self.theta == 0 or (self.game.grid[int(self.y)][int((self.x - self.speed)) - 1] != "b") \
                 and ((self.theta == 90 and self.y % 1 <= 0.5) or
                 (self.theta == 270 and self.y % 1 >= 0.5) or self.theta is None):
                     self.theta = self.want_theta
 
         if self.want_theta == 90 and self.can_up:
-            if self.theta == 270 or (self.map.grid[int((self.y + self.speed)) + 1][int(self.x)] != "b") \
+            if self.theta == 270 or (self.game.grid[int((self.y + self.speed)) + 1][int(self.x)] != "b") \
                 and ((self.theta == 0 and self.x % 1 <= 0.5) or
                 (self.theta == 180 and self.x % 1 >= 0.5) or self.theta is None):
                     self.theta = self.want_theta
 
         if self.want_theta == 270 and self.can_down:
-            if self.theta == 90 or (self.map.grid[int((self.y - self.speed)) - 1][int(self.x)] != "b") \
+            if self.theta == 90 or (self.game.grid[int((self.y - self.speed)) - 1][int(self.x)] != "b") \
                 and ((self.theta == 0 and self.x % 1 <= 0.5) or
                 (self.theta == 180 and self.x % 1 >= 0.5) or self.theta is None):
                     self.theta = self.want_theta
