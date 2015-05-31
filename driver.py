@@ -5,6 +5,7 @@ import pyglet
 from pyglet.gl import *
 from pyglet.window import key
 import common as c
+from pyglet.clock import ClockDisplay
 
 
 class Driver(pyglet.window.Window):
@@ -15,6 +16,8 @@ class Driver(pyglet.window.Window):
         self.l = length
         self.map = Game("map_classic.txt")
 
+        self.fps_display = pyglet.clock.ClockDisplay()
+
     def update(self, dt):
 
         for x in self.map.players:
@@ -24,6 +27,7 @@ class Driver(pyglet.window.Window):
     def on_draw(self):
         self.clear()
         self.map.draw()
+        self.fps_display.draw()
 
 if __name__ == "__main__":
     gd = c.GRID_DIM
