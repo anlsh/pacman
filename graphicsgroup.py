@@ -2,6 +2,7 @@ __author__ = 'anish'
 
 from pyglet.gl import glBegin, glEnd, glLineWidth, glColor3f, glVertex2f, GL_QUADS, GL_LINE_LOOP, GL_LINE_STRIP, \
     GL_LINES
+from functools import partial
 from common import *
 
 
@@ -29,6 +30,7 @@ class GraphicsGroup:
         map.glVertex2f = self.glVertex2f
         map.draw_segment = self.draw_segment
         map.draw_line = self.draw_line
+        map.odraw_segment = self.odraw_segment
 
     def draw_rectangle(self, x, y, w, h):
 
@@ -43,19 +45,30 @@ class GraphicsGroup:
 
         glVertex2f(self.xoff + x, self.yoff + y)
 
-    def draw_segment(self, x, y, radius, start_theta, stop_theta, step=10):
+    def draw_segment(self, x, y, radius, start_theta, stop_theta, step=2):
 
         # This method is a ridiculously massive bottleneck, single-handedly causing the FPS to periodically drop by
         # 10-20. Because of that, I'm leaving it undone right now
-        # TODO For the love of god, optimise this method
-
-        return None
 
         glBegin(GL_LINE_STRIP)
         for i in range(step + 1):
             theta = start_theta + (stop_theta - start_theta) / step * i
             self.glVertex2f(x + radius * cos(theta), y + radius * sin(theta))
         glEnd()
+
+    def odraw_segment(self, x, y, radius, start_theta, stop_theta, func_ptrs, step=2):
+
+        # Optimised version of the draw_segment method, meant to push a set of function pointers onto
+        # a pre-existing array
+
+        # TODO This method is much better than simply making calls to partial in drawing a static map, but FPS may
+        # still dip to the high 40s intermittently even with a step of 1. Further optimizations are in order
+
+        func_ptrs.append(partial(glBegin, GL_LINE_STRIP))
+        for i in range(step + 1):
+            theta = start_theta + (stop_theta - start_theta) / step * i
+            func_ptrs.append(partial(self.glVertex2f, x + radius * cos(theta), y + radius * sin(theta)))
+        func_ptrs.append(partial(glEnd))
 
     def draw_line(self, x1, y1, x2, y2):
 

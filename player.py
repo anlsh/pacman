@@ -94,11 +94,11 @@ class Player(Entity):
         #update the wanted direction based upon which key is pressed
         if self.keys[self.cscheme[0]]:
             self.want_theta = 90
-        if self.keys[self.cscheme[1]]:
+        elif self.keys[self.cscheme[1]]:
             self.want_theta = 180
-        if self.keys[self.cscheme[2]]:
+        elif self.keys[self.cscheme[2]]:
             self.want_theta = 270
-        if self.keys[self.cscheme[3]]:
+        elif self.keys[self.cscheme[3]]:
             self.want_theta = 0
 
         # Needed for mismatch correction, addressed farther down
@@ -135,19 +135,19 @@ class Player(Entity):
                 (self.theta == 270 and self.y % 1 >= 0.5) or self.theta is None):
                     self.theta = self.want_theta
 
-        if self.want_theta == 180 and self.can_left:
+        elif self.want_theta == 180 and self.can_left:
             if self.theta == 0 or (self.game.grid[int(self.y)][int((self.x - self.speed)) - 1] != "b") \
                 and ((self.theta == 90 and self.y % 1 <= 0.5) or
                 (self.theta == 270 and self.y % 1 >= 0.5) or self.theta is None):
                     self.theta = self.want_theta
 
-        if self.want_theta == 90 and self.can_up:
+        elif self.want_theta == 90 and self.can_up:
             if self.theta == 270 or (self.game.grid[int((self.y + self.speed)) + 1][int(self.x)] != "b") \
                 and ((self.theta == 0 and self.x % 1 <= 0.5) or
                 (self.theta == 180 and self.x % 1 >= 0.5) or self.theta is None):
                     self.theta = self.want_theta
 
-        if self.want_theta == 270 and self.can_down:
+        elif self.want_theta == 270 and self.can_down:
             if self.theta == 90 or (self.game.grid[int((self.y - self.speed)) - 1][int(self.x)] != "b") \
                 and ((self.theta == 0 and self.x % 1 <= 0.5) or
                 (self.theta == 180 and self.x % 1 >= 0.5) or self.theta is None):
@@ -159,13 +159,13 @@ class Player(Entity):
         if self.theta == 0 and self.can_right:
             self.x += self.speed * cos(self.theta).__int__()
 
-        if self.theta == 180 and self.can_left:
+        elif self.theta == 180 and self.can_left:
             self.x += self.speed * cos(self.theta).__int__()
 
-        if self.theta == 90 and self.can_up:
+        elif self.theta == 90 and self.can_up:
             self.y += self.speed * sin(self.theta).__int__()
 
-        if self.theta == 270 and self.can_down:
+        elif self.theta == 270 and self.can_down:
             self.y += self.speed * sin(self.theta).__int__()
 
         # Correct mismatches. Since Pac-Man is allowed to move before he actually reaches a turn per se, the last block
@@ -189,7 +189,7 @@ class Player(Entity):
             else:
                 self.horizontal_mismatch = False
 
-        if self.vertical_mismatch:
+        elif self.vertical_mismatch:
             if self.y % 1 != 0.5:
                 self.y += self.speed * sin(self.last_theta).__int__()
             else:

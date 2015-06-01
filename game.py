@@ -19,7 +19,7 @@ class Game:
 
         # TODO implement procedural generation
 
-        self.draw_rectangle = self.glVertex2f = self.draw_segment = self.draw_line = None
+        self.draw_rectangle = self.glVertex2f = self.draw_segment = self.draw_line = self.odraw_segment = None
         self.xoff = self.yoff = None
         self.graphics_group = GraphicsGroup(self, x=0, y=0)
 
@@ -103,43 +103,42 @@ class Game:
                                                                y * GRID_DIM + GRID_DIM))
 
                     elif empty_up and empty_left and not empty_down and self.grid[y-1][x-1] != "b":
-                        self.map_draw_functions.append(partial(self.draw_segment, x * GRID_DIM + GRID_DIM, y * GRID_DIM,
-                                                               GRID_DIM // 2, 90, 180))
+                        self.odraw_segment(x * GRID_DIM + GRID_DIM, y * GRID_DIM, GRID_DIM // 2, 90, 180,
+                                           self.map_draw_functions)
 
                     elif empty_up and empty_right and not empty_down and self.grid[y-1][x+1] != "b":
-                        self.map_draw_functions.append(partial(self.draw_segment, x * GRID_DIM,
-                                                               y * GRID_DIM, GRID_DIM // 2, 0, 90))
+                        self.odraw_segment(x * GRID_DIM, y * GRID_DIM, GRID_DIM // 2, 0, 90, self.map_draw_functions)
 
                     elif empty_down and empty_left and not empty_up and self.grid[y+1][x-1] != "b":
-                        self.map_draw_functions.append(partial(self.draw_segment, x * GRID_DIM + GRID_DIM,
-                                                               y * GRID_DIM + GRID_DIM, GRID_DIM // 2, 180, 270))
+                        self.odraw_segment(x * GRID_DIM + GRID_DIM, y * GRID_DIM + GRID_DIM, GRID_DIM // 2, 180, 270,
+                                           self.map_draw_functions)
 
                     elif empty_down and empty_right and not empty_up and self.grid[y+1][x+1] != "b":
-                        self.map_draw_functions.append(partial(self.draw_segment, x * GRID_DIM, y * GRID_DIM + GRID_DIM,
-                                                                GRID_DIM // 2, 270, 360))
+                        self.odraw_segment(x * GRID_DIM, y * GRID_DIM + GRID_DIM, GRID_DIM // 2, 270, 360,
+                                           self.map_draw_functions)
 
                     try:
                         if self.grid[y-1][x-1] != "b" and not empty_left and not empty_down:
-                            self.map_draw_functions.append(partial(self.draw_segment, x * GRID_DIM, y * GRID_DIM,
-                                                            GRID_DIM // 2, 0, 90))
+                            self.odraw_segment(x * GRID_DIM, y * GRID_DIM, GRID_DIM // 2, 0, 90,
+                                               self.map_draw_functions)
                     except BaseException:
                         pass
                     try:
                         if self.grid[y-1][x+1] != "b" and not empty_right and not empty_down:
-                            self.map_draw_functions.append(partial(self.draw_segment, x * GRID_DIM + GRID_DIM,
-                                                                   y * GRID_DIM, GRID_DIM // 2, 90, 180))
+                            self.odraw_segment(x * GRID_DIM + GRID_DIM, y * GRID_DIM, GRID_DIM // 2, 90, 180,
+                                               self.map_draw_functions)
                     except BaseException:
                         pass
                     try:
                         if self.grid[y+1][x-1] != "b" and not empty_left and not empty_up:
-                            self.map_draw_functions.append(partial(self. draw_segment, x * GRID_DIM,
-                                                                   y * GRID_DIM + GRID_DIM, GRID_DIM // 2, 270, 360))
+                            self.odraw_segment(x * GRID_DIM, y * GRID_DIM + GRID_DIM, GRID_DIM // 2, 270, 360,
+                                               self.map_draw_functions)
                     except BaseException:
                         pass
                     try:
                         if self.grid[y+1][x+1] != "b" and not empty_right and not empty_up:
-                            self.map_draw_functions.append(partial(self.draw_segment, x * GRID_DIM + GRID_DIM,
-                                                                   y * GRID_DIM + GRID_DIM, GRID_DIM // 2, 180, 270))
+                            self.odraw_segment(x * GRID_DIM + GRID_DIM, y * GRID_DIM + GRID_DIM, GRID_DIM // 2, 180,
+                                                270, self.map_draw_functions)
                     except BaseException:
                         pass
 
