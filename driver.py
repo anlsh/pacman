@@ -30,14 +30,16 @@ class Driver(pyglet.window.Window):
         self.fps_display.draw()
 
 if __name__ == "__main__":
-    gd = c.GRID_DIM
-    game = Driver(28*gd, 29*gd, gd)
 
-    # Some OpenGL stuff
     glLineWidth(4)
     glClearColor(0, 0, 0, 1)
     glClear(GL_COLOR_BUFFER_BIT)
     glEnableClientState(GL_VERTEX_ARRAY)
+
+    gd = c.GRID_DIM
+    game = Driver(28*gd, 29*gd, gd)
+
+    # Some OpenGL stuff
 
     pyglet.clock.schedule_interval(game.update, 1 / c.CLOCKS_PER_SEC)
     pyglet.clock.set_fps_limit(60)

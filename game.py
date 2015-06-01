@@ -145,6 +145,7 @@ class Game:
 
         glColor3f(0, 0, 1)
 
+        glBindBuffer(GL_ARRAY_BUFFER, self.line_vbo)
         glVertexPointer(2, GL_FLOAT, 0, 0)
         glDrawArrays(GL_POINTS, 0, 2)
 
