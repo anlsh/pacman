@@ -30,8 +30,7 @@ class Game:
         with open(handle) as f:
             self.grid = list(reversed(f.readlines()))
             self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
-        
-        # Populate the game
+
         # TODO Set spawn tiles for players and ghosts on the game
         self.players = [Player([key.W, key.A, key.S, key.D], 1.5, 1.5, self)]
         self.ghosts = [Blinky(1.5, 1.5, self), Pinky(1.5, 1.5, self), Inky(1.5, 1.5, self), Clyde(1.5, 1.5, self)]
