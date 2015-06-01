@@ -1,10 +1,12 @@
 from pyglet.window import key
-from pyglet.gl import glColor3f
 from player import Player
 from ghost import *
 from common import *
 from functools import partial
 from graphicsgroup import GraphicsGroup
+
+from pyglet.gl import *
+from ctypes import pointer, sizeof
 
 
 class Game:
@@ -36,15 +38,20 @@ class Game:
 
         # Create a set of functions to loop through to draw a static game so a ton of constant conditionals aren't
         # checked on ever iteration
-        self.map_draw_functions = []
+        self.line_points = []
+        self.circle_points = []
         self.calculate_static_map()
 
-        # Score!
-        self.score = 0
+        self.line_vbo = GLuint()
+        glGenBuffers(1, pointer(self.line_vbo))
+        self.line_points = (GLfloat*self.line_points.__len__())(*self.line_points)
+        glBindBuffer(GL_ARRAY_BUFFER, self.line_vbo)
+        glBufferData(GL_ARRAY_BUFFER, sizeof(self.line_points), 0, GL_STATIC_DRAW)
 
     def draw(self):
 
         # Draw the game, players, and ghosts
+        glClear(GL_COLOR_BUFFER_BIT)
         self.draw_map()
 
         for p in self.players:
@@ -52,8 +59,6 @@ class Game:
 
         for g in self.ghosts:
             g.draw()
-
-        glColor3f(1, 0, 0)
 
     def calculate_static_map(self):
 
@@ -63,8 +68,6 @@ class Game:
         # called quickly.
         # I'm not going to comment this method, that would take waaay too long. Maybe another day
         # TODO Comment this method
-
-        self.map_draw_functions.append(partial(glColor3f, 0, 0, 1))
 
         for y in range(len(self.grid)):
 
@@ -93,69 +96,59 @@ class Game:
 
                     if (empty_up or empty_down) and not empty_left and not empty_right:
 
-                        self.map_draw_functions.append(partial(self.draw_line, x * GRID_DIM,
-                                                               y * GRID_DIM + GRID_DIM // 2, x * GRID_DIM + GRID_DIM,
-                                                               y * GRID_DIM + GRID_DIM // 2))
+                        self.draw_line(x * GRID_DIM, y * GRID_DIM + GRID_DIM // 2, x * GRID_DIM + GRID_DIM,
+                                        y * GRID_DIM + GRID_DIM // 2, self.line_points)
 
                     elif (empty_left or empty_right) and not empty_up and not empty_down:
-                        self.map_draw_functions.append(partial(self.draw_line, x * GRID_DIM + GRID_DIM // 2,
-                                                               y * GRID_DIM, x * GRID_DIM + GRID_DIM // 2,
-                                                               y * GRID_DIM + GRID_DIM))
+                        self.draw_line(x * GRID_DIM + GRID_DIM // 2, y * GRID_DIM, x * GRID_DIM + GRID_DIM // 2,
+                                                               y * GRID_DIM + GRID_DIM, self.line_points)
 
                     elif empty_up and empty_left and not empty_down and self.grid[y-1][x-1] != "b":
                         self.odraw_segment(x * GRID_DIM + GRID_DIM, y * GRID_DIM, GRID_DIM // 2, 90, 180,
-                                           self.map_draw_functions)
+                                           self.circle_points)
 
                     elif empty_up and empty_right and not empty_down and self.grid[y-1][x+1] != "b":
-                        self.odraw_segment(x * GRID_DIM, y * GRID_DIM, GRID_DIM // 2, 0, 90, self.map_draw_functions)
+                        self.odraw_segment(x * GRID_DIM, y * GRID_DIM, GRID_DIM // 2, 0, 90, self.circle_points)
 
                     elif empty_down and empty_left and not empty_up and self.grid[y+1][x-1] != "b":
                         self.odraw_segment(x * GRID_DIM + GRID_DIM, y * GRID_DIM + GRID_DIM, GRID_DIM // 2, 180, 270,
-                                           self.map_draw_functions)
+                                           self.circle_points)
 
                     elif empty_down and empty_right and not empty_up and self.grid[y+1][x+1] != "b":
                         self.odraw_segment(x * GRID_DIM, y * GRID_DIM + GRID_DIM, GRID_DIM // 2, 270, 360,
-                                           self.map_draw_functions)
+                                           self.circle_points)
 
                     try:
                         if self.grid[y-1][x-1] != "b" and not empty_left and not empty_down:
                             self.odraw_segment(x * GRID_DIM, y * GRID_DIM, GRID_DIM // 2, 0, 90,
-                                               self.map_draw_functions)
+                                               self.circle_points)
                     except BaseException:
                         pass
                     try:
                         if self.grid[y-1][x+1] != "b" and not empty_right and not empty_down:
                             self.odraw_segment(x * GRID_DIM + GRID_DIM, y * GRID_DIM, GRID_DIM // 2, 90, 180,
-                                               self.map_draw_functions)
+                                               self.circle_points)
                     except BaseException:
                         pass
                     try:
                         if self.grid[y+1][x-1] != "b" and not empty_left and not empty_up:
                             self.odraw_segment(x * GRID_DIM, y * GRID_DIM + GRID_DIM, GRID_DIM // 2, 270, 360,
-                                               self.map_draw_functions)
+                                               self.circle_points)
                     except BaseException:
                         pass
                     try:
                         if self.grid[y+1][x+1] != "b" and not empty_right and not empty_up:
                             self.odraw_segment(x * GRID_DIM + GRID_DIM, y * GRID_DIM + GRID_DIM, GRID_DIM // 2, 180,
-                                                270, self.map_draw_functions)
+                                                270, self.circle_points)
                     except BaseException:
                         pass
 
     def draw_map(self):
 
-        #Draw the static game
-        for f in self.map_draw_functions:
-            f()
+        glColor3f(0, 0, 1)
 
-        # In this method dynamic things (like dots) should be drawn, but it's not implemented right now
-        # TODO Implement drawing dots
-
-        for y in range(len(self.grid)):
-
-            for x in range(len(self.grid[y]))[::-1]:
-
-                u = self.grid[y][x]
+        glVertexPointer(2, GL_FLOAT, 0, 0)
+        glDrawArrays(GL_POINTS, 0, 2)
 
     def update(self):
 
