@@ -40,6 +40,8 @@ class Game:
         self.circle_points = []
         self.calculate_static_map()
 
+        self.number_line_indices = self.line_points.__len__()
+
         self.line_vbo = GLuint()
         glGenBuffers(1, pointer(self.line_vbo))
         self.line_points = (GLfloat*self.line_points.__len__())(*self.line_points)
@@ -147,7 +149,7 @@ class Game:
 
         glBindBuffer(GL_ARRAY_BUFFER, self.line_vbo)
         glVertexPointer(2, GL_FLOAT, 0, 0)
-        glDrawArrays(GL_POINTS, 0, 2)
+        glDrawArrays(GL_POINTS, 0, self.number_line_indices)
 
     def update(self):
 
