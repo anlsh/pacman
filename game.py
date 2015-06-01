@@ -2,7 +2,6 @@ from pyglet.window import key
 from player import Player
 from ghost import *
 from common import *
-from functools import partial
 from graphicsgroup import GraphicsGroup
 
 from pyglet.gl import *
