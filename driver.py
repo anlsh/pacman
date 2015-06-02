@@ -6,6 +6,7 @@ from pyglet.gl import *
 from pyglet.window import key
 import common as c
 from pyglet.clock import ClockDisplay
+from ctypes import pointer, sizeof
 
 
 class Driver(pyglet.window.Window):
@@ -38,8 +39,6 @@ if __name__ == "__main__":
 
     gd = c.GRID_DIM
     game = Driver(28*gd, 29*gd, gd)
-
-    # Some OpenGL stuff
 
     pyglet.clock.schedule_interval(game.update, 1 / c.CLOCKS_PER_SEC)
     pyglet.clock.set_fps_limit(60)

@@ -149,7 +149,7 @@ class Game:
 
         glBindBuffer(GL_ARRAY_BUFFER, self.line_vbo)
         glVertexPointer(2, GL_FLOAT, 0, 0)
-        glDrawArrays(GL_POINTS, 0, self.number_line_indices)
+        glDrawArrays(GL_LINES, 0, self.number_line_indices)
 
     def update(self):
 
