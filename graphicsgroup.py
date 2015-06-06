@@ -58,7 +58,7 @@ class GraphicsGroup:
 
         # Even more optimisations on the draw_segment method- this adds relevant vertexes to a vertex array
 
-        # TODO This method is much better than simply making calls to partial in drawing a static map, but FPS may
+        # TODO This method is much better than simply making calls to partial in drawing a static game, but FPS may
         # still dip to the high 40s intermittently even with a step of 1. Further optimizations are in order
 
         for i in range(step + 1):
@@ -69,7 +69,7 @@ class GraphicsGroup:
         # Optimised version of the draw_segment method, meant to push a set of function pointers onto
         # a pre-existing array
 
-        # TODO This method is much better than simply making calls to partial in drawing a static map, but FPS may
+        # TODO This method is much better than simply making calls to partial in drawing a static game, but FPS may
         # still dip to the high 40s intermittently even with a step of 1. Further optimizations are in order
 
         func_ptrs.append(partial(glBegin, GL_LINE_STRIP))

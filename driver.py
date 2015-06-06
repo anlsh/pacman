@@ -1,11 +1,10 @@
 __author__ = 'anish'
 from game import Game
+from menu import Menu
 
 import pyglet
 from pyglet.gl import *
 import common as c
-from pyglet.clock import ClockDisplay
-from ctypes import pointer, sizeof
 
 
 class Driver(pyglet.window.Window):
@@ -14,25 +13,31 @@ class Driver(pyglet.window.Window):
         super().__init__(width, length)
         self.w = width
         self.l = length
-        self.map = Game("map_classic.txt")
+        self.game = Game("map_classic.txt")
+        self.menu = Menu()
+
+        self.state = "menu"
+
+        # OpenGL config
 
         glLineWidth(4)
         glClearColor(0, 0, 0, 1)
         glClear(GL_COLOR_BUFFER_BIT)
         glEnableClientState(GL_VERTEX_ARRAY)
 
-        self.fps_display = pyglet.clock.ClockDisplay()
-
     def update(self, dt):
 
-        for x in self.map.players:
-            self.push_handlers(x.keys)
-        self.map.update()
+        if self.state == "game":
+            for x in self.game.players:
+                self.push_handlers(x.keys)
+            self.game.update()
+
 
     def on_draw(self):
         self.clear()
-        self.map.draw()
-        self.fps_display.draw()
+        #self.game.draw()
+        #self.fps_display.draw()
+        self.menu.draw()
 
 if __name__ == "__main__":
 
