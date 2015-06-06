@@ -16,7 +16,9 @@ class Driver(pyglet.window.Window):
         self.game = Game("map_classic.txt")
         self.menu = Menu()
 
-        self.state = "menu"
+        self.state = "game"
+
+        self.fps_display = pyglet.clock.ClockDisplay()
 
         # OpenGL config
 
@@ -35,9 +37,8 @@ class Driver(pyglet.window.Window):
 
     def on_draw(self):
         self.clear()
-        #self.game.draw()
-        #self.fps_display.draw()
-        self.menu.draw()
+        self.game.draw()
+        self.fps_display.draw()
 
 if __name__ == "__main__":
 
