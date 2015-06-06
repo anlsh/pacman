@@ -160,7 +160,7 @@ class Game:
         # Draw circles
         glBindBuffer(GL_ARRAY_BUFFER, self.circle_vbo)
         glVertexPointer(2, GL_FLOAT, 0, 0)
-        glDrawArrays(GL_LINES, 0, self.circle_data_l)
+        glDrawArrays(GL_LINE_STRIP, 0, self.circle_data_l)
 
     def update(self):
 
