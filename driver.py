@@ -3,7 +3,6 @@ from game import Game
 
 import pyglet
 from pyglet.gl import *
-from pyglet.window import key
 import common as c
 from pyglet.clock import ClockDisplay
 from ctypes import pointer, sizeof
@@ -16,6 +15,11 @@ class Driver(pyglet.window.Window):
         self.w = width
         self.l = length
         self.map = Game("map_classic.txt")
+
+        glLineWidth(4)
+        glClearColor(0, 0, 0, 1)
+        glClear(GL_COLOR_BUFFER_BIT)
+        glEnableClientState(GL_VERTEX_ARRAY)
 
         self.fps_display = pyglet.clock.ClockDisplay()
 
@@ -31,11 +35,6 @@ class Driver(pyglet.window.Window):
         self.fps_display.draw()
 
 if __name__ == "__main__":
-
-    glLineWidth(4)
-    glClearColor(0, 0, 0, 1)
-    glClear(GL_COLOR_BUFFER_BIT)
-    glEnableClientState(GL_VERTEX_ARRAY)
 
     gd = c.GRID_DIM
     game = Driver(28*gd, 29*gd, gd)

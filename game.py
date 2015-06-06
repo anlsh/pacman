@@ -40,18 +40,23 @@ class Game:
         self.circle_points = []
         self.calculate_static_map()
 
-        self.number_line_indices = self.line_points.__len__()
-
+        self.line_data_l = self.line_points.__len__()
         self.line_vbo = GLuint()
         glGenBuffers(1, pointer(self.line_vbo))
-        self.line_points = (GLfloat*self.line_points.__len__())(*self.line_points)
+        self.line_gldata = (GLfloat*self.line_data_l)(*self.line_points)
         glBindBuffer(GL_ARRAY_BUFFER, self.line_vbo)
-        glBufferData(GL_ARRAY_BUFFER, sizeof(self.line_points), 0, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, sizeof(self.line_gldata), pointer(self.line_gldata), GL_STATIC_DRAW)
+
+        self.circle_data_l = self.circle_points.__len__()
+        self.circle_vbo = GLuint()
+        glGenBuffers(1, pointer(self.circle_vbo))
+        self.circle_gldata = (GLfloat*self.circle_data_l)(*self.circle_points)
+        glBindBuffer(GL_ARRAY_BUFFER, self.circle_vbo)
+        glBufferData(GL_ARRAY_BUFFER, sizeof(self.circle_gldata), pointer(self.circle_gldata), GL_STATIC_DRAW)
 
     def draw(self):
 
         # Draw the game, players, and ghosts
-        glClear(GL_COLOR_BUFFER_BIT)
         self.draw_map()
 
         for p in self.players:
@@ -147,9 +152,15 @@ class Game:
 
         glColor3f(0, 0, 1)
 
+        # Draw lines
         glBindBuffer(GL_ARRAY_BUFFER, self.line_vbo)
         glVertexPointer(2, GL_FLOAT, 0, 0)
-        glDrawArrays(GL_LINES, 0, self.number_line_indices)
+        glDrawArrays(GL_LINES, 0, self.line_data_l)
+
+        # Draw circles
+        glBindBuffer(GL_ARRAY_BUFFER, self.circle_vbo)
+        glVertexPointer(2, GL_FLOAT, 0, 0)
+        glDrawArrays(GL_LINES, 0, self.circle_data_l)
 
     def update(self):
 
