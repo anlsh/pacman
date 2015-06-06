@@ -40,6 +40,8 @@ class Game:
         self.circle_points = []
         self.calculate_static_map()
 
+        # Set up buffers and upload relevant vertex data to them, this is muy faster than using glBegin, etc...
+
         self.line_data_l = self.line_points.__len__()
         self.line_vbo = GLuint()
         glGenBuffers(1, pointer(self.line_vbo))
