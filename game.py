@@ -58,7 +58,7 @@ class Game:
                           font_size=12,
                           x=0, y=20)
 
-    def init_map(self, ):
+    def init_map(self):
         with open(self.handle) as f:
             self.grid = list(reversed(f.readlines()))
             self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
@@ -226,10 +226,11 @@ class Game:
 
         if self.dots_eaten == 236:
             self.init_map()
-            self.governor = Governor()
+            self.governor = Governor(self)
+            self.dots_eaten = 0
+            self.pups_eaten = 0
             time.sleep(3)
-            return None
-        
+
         self.governor.update()
 
         for p in self.players:
