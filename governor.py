@@ -17,7 +17,7 @@ class Governor:
         self.master_state = "idle"
 
         game.players = [Player([key.W, key.A, key.S, key.D], 15.5, 8.5, game)]
-        game.ghosts = [Blinky(15.5, 16.5, game), Pinky(16.5, 16.5, game),
+        game.ghosts = [Blinky(16.5, 16.5, game), Pinky(15.5, 16.5, game),
                         Inky(13.5, 16.5, game),  Clyde(18.5, 16.5, game)]
 
     def update(self):
@@ -31,21 +31,62 @@ class Governor:
             self.set_ghost_states("chase", override_idle=True)
             return None
 
-        # TODO implement more levels :(
-        #if self.game.level == 1:
-        if self.into_time(0, 7):
-            self.master_state = "wander"
-        elif self.into_time(7, 27):
-            self.master_state = "chase"
-        elif self.into_time(27, 34):
-            self.master_state = "wander"
-        elif self.into_time(34, 54):
-            self.master_state = "chase"
-        elif self.into_time(54, 59):
-            self.master_state = "wander"
-        elif self.into_time(59, 70):
-            self.master_state = "chase"
-            self.indefinite_chase = True
+        if self.game.level == 1:
+            if self.into_time(0, 7):
+                self.master_state = "wander"
+            elif self.into_time(7, 27):
+                self.master_state = "chase"
+            elif self.into_time(27, 34):
+                self.master_state = "wander"
+            elif self.into_time(34, 54):
+                self.master_state = "chase"
+            elif self.into_time(54, 59):
+                self.master_state = "wander"
+            elif self.into_time(59, 79):
+                self.master_state = "chase"
+            elif self.into_time(79, 84):
+                self.master_state = "wander"
+            elif self.into_time(84, 87):
+                self.master_state = "chase"
+                self.indefinite_chase = True
+
+        elif 2 <= self.game.level <= 4:
+            if self.into_time(0, 7):
+                self.master_state = "wander"
+            elif self.into_time(7, 27):
+                self.master_state = "chase"
+            elif self.into_time(27, 34):
+                self.master_state = "wander"
+            elif self.into_time(34, 54):
+                self.master_state = "chase"
+            elif self.into_time(54, 59):
+                self.master_state = "wander"
+            elif self.into_time(59, 1092):
+                self.master_state = "chase"
+            elif self.into_time(1092, 1093):
+                self.master_state = "wander"
+            elif self.into_time(1093, 2000):
+                self.master_state = "chase"
+                self.indefinite_chase = True
+
+        else:
+            if self.into_time(0, 7):
+                self.master_state = "wander"
+            elif self.into_time(7, 27):
+                self.master_state = "chase"
+            elif self.into_time(27, 34):
+                self.master_state = "wander"
+            elif self.into_time(34, 54):
+                self.master_state = "chase"
+            elif self.into_time(54, 59):
+                self.master_state = "wander"
+            elif self.into_time(59, 1096):
+                self.master_state = "chase"
+            elif self.into_time(1096, 1097):
+                self.master_state = "wander"
+            elif self.into_time(1097, 2000):
+                self.master_state = "chase"
+                self.indefinite_chase = True
 
         self.set_ghost_states(self.master_state)
 
@@ -61,7 +102,7 @@ class Governor:
 
         for g in self.game.ghosts:
 
-            if g.state == "escape":
+            if g.state == "escape" or g.state == "retreat":
                 continue
 
             if g.state == "idle":

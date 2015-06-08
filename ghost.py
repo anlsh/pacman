@@ -17,6 +17,7 @@ class Ghost(Entity):
         # setpoint coordinates
         self.start_x = x
         self.start_y = y
+        self.escaped = False
 
         self.want_x = None
         self.want_y = None
@@ -99,14 +100,14 @@ class Ghost(Entity):
             self.speed = Fraction(1, 20)
             self.x -= self.x % self.speed
             self.y -= self.y % self.speed
-            if not self.escaped():
+            if not self.escaped:
                 self.state = "escape"
             self.set_setpoint(*self.target())
         if self.state == "wander":
             self.speed = Fraction(1, 20)
             self.x -= self.x % self.speed
             self.y -= self.y % self.speed
-            if not self.escaped():
+            if not self.escaped:
                 self.state = "escape"
             self.set_setpoint(*self.wanderpoint)
         if self.state == "scared":
@@ -120,8 +121,18 @@ class Ghost(Entity):
                 self.dot_threshold = 100000
             else:
                 return None
+
         if self.state == "escape":
-            self.speed = Fraction(1, 10)
+            self.speed = Fraction(1, 20)
+            self.x -= self.x % self.speed
+            self.y -= self.y % self.speed
+            self.set_setpoint(*self.escape_tile)
+            if [self.x, self.y] == self.escape_tile and not self.escaped:
+                self.escaped = True
+                self.state = "wander"
+
+        if self.state == "retreat":
+            self.speed = Fraction(1, 4)
             self.x -= self.x % self.speed
             self.y -= self.y % self.speed
             self.set_setpoint(*self.escape_tile)
@@ -143,43 +154,41 @@ class Ghost(Entity):
 
         distances = [right_distance, left_distance, down_distance, up_distance]
 
-        if self.x != self.want_x or self.y != self.want_y:
+        # This loop is needed to ensure that a valid theta is always set. If this is not included then sometimes an
+        # appropriate theta will not be set because it is not the shortest path, allowing invalid paths to be taken
 
-            # This loop is needed to ensure that a valid theta is always set. If this is not included then sometimes an
-            # appropriate theta will not be set because it is not the shortest path, allowing invalid paths to be taken
+        theta_set = False
 
-            theta_set = False
+        while not theta_set:
 
-            while not theta_set:
+            min_distance = min(distances)
 
-                min_distance = min(distances)
+            if self.can_up and up_distance == min_distance and self.theta != 270:
+                self.theta = 90
+                theta_set = True
 
-                if self.can_up and up_distance == min_distance and self.theta != 270:
-                    self.theta = 90
-                    theta_set = True
+            elif self.can_left and left_distance == min_distance and self.theta != 0:
+                self.theta = 180
+                theta_set = True
 
-                elif self.can_left and left_distance == min_distance and self.theta != 0:
-                    self.theta = 180
-                    theta_set = True
+            elif self.can_down and down_distance == min_distance and self.theta != 90:
+                self.theta = 270
+                theta_set = True
 
-                elif self.can_down and down_distance == min_distance and self.theta != 90:
-                    self.theta = 270
-                    theta_set = True
+            elif self.can_right and right_distance == min_distance and self.theta != 180:
+                self.theta = 0
+                theta_set = True
 
-                elif self.can_right and right_distance == min_distance and self.theta != 180:
-                    self.theta = 0
-                    theta_set = True
+            #if none of the minimum distances are in valid directions, remove them from consideration and reloop
+            for x in range(len(distances)):
+                try:
+                    distances.remove(min_distance)
+                except ValueError:
+                    break
 
-                #if none of the minimum distances are in valid directions, remove them from consideration and reloop
-                for x in range(len(distances)):
-                    try:
-                        distances.remove(min_distance)
-                    except ValueError:
-                        break
-
-            #update position
-            self.x += self.speed * cos(self.theta).__int__()
-            self.y += self.speed * sin(self.theta).__int__()
+        #update position
+        self.x += self.speed * cos(self.theta).__int__()
+        self.y += self.speed * sin(self.theta).__int__()
 
     def draw(self):
         '''
@@ -206,10 +215,6 @@ class Ghost(Entity):
             self.sprites[int(self.count % 2)][90].set_position(self.x * GRID_DIM, self.y * GRID_DIM)
             self.sprites[int(self.count % 2)][90].draw()
 
-    def escaped(self):
-
-        return [self.x, self.y] != [self.start_x, self.start_y]
-
     def wander(self):
 
         return [randint(0, 32), randint(0, 31)]
@@ -221,7 +226,7 @@ class Blinky(Ghost):
 
         super().__init__(x, y, game)
         self.load_resources(5)
-        self.wanderpoint = [100, 100]
+        self.wanderpoint = [57/2, 61/2]
         self.dot_threshold = 0
 
     def target(self):
@@ -234,7 +239,7 @@ class Pinky(Ghost):
 
         super().__init__(x, y, game)
         self.load_resources(4)
-        self.wanderpoint = [0, 100]
+        self.wanderpoint = [7/2, 61/2]
         self.dot_threshold = 30
 
     def target(self):
@@ -249,7 +254,7 @@ class Inky(Ghost):
 
         super().__init__(x, y, game)
         self.load_resources(3)
-        self.wanderpoint = [0, -5]
+        self.wanderpoint = [7/2, 1/2]
         self.dot_threshold = 60
 
     def target(self):
@@ -268,7 +273,7 @@ class Clyde(Ghost):
 
         super().__init__(x, y, game)
         self.load_resources(2)
-        self.wanderpoint = [30, -1]
+        self.wanderpoint = [57/2, 1/2]
         self.dot_threshold = 90
 
     def target(self):

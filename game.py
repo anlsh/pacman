@@ -226,6 +226,7 @@ class Game:
 
         if self.dots_eaten == 236:
             #reset the map
+            self.level += 1
             self.init_map()
             self.governor = Governor(self)
             self.dots_eaten = 0
@@ -252,9 +253,10 @@ class Game:
             g.update()
 
             if [int(g.x), int(g.y)] == [int(self.players[0].x), int(self.players[0].y)]:
-                if g.state == "scared" or g.state == "escape":
+                if g.state == "scared" or g.state == "retreat":
                     self.score += 200
-                    g.state = "escape"
+                    g.state = "retreat"
+
                 else:
                     self.lives -= 1
 
