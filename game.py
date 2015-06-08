@@ -32,8 +32,9 @@ class Game:
             self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
 
         # TODO Set spawn tiles for players and ghosts on the game
-        self.players = [Player([key.W, key.A, key.S, key.D], 1.5, 1.5, self)]
-        self.ghosts = [Blinky(1.5, 1.5, self), Pinky(1.5, 1.5, self), Inky(1.5, 1.5, self), Clyde(1.5, 1.5, self)]
+        self.players = [Player([key.W, key.A, key.S, key.D], 15.5, 8.5, self)]
+        self.ghosts = [Blinky(15.5, 18.5, self), Pinky(15.5, 16.5, self), Inky(3.5, 3.5, self), Clyde(3.5, 3.5, self)]
+        self.ents = self.players + self.ghosts
 
         # Create a set of functions to loop through to draw a static game so a ton of constant conditionals aren't
         # checked on ever iteration
@@ -189,9 +190,13 @@ class Game:
 
         for p in self.players:
             p.update()
-            if self.grid[int(p.y)][int(p.x)] == "d":
-                self.grid[int(p.y)][int(p.x)] = "e"
-                self.eat(int(p.x), int(p.y))
+            try:
+                if self.grid[int(p.y)][int(p.x)] == "d":
+                    self.grid[int(p.y)][int(p.x)] = "e"
+                    self.eat(int(p.x), int(p.y))
+
+            except IndexError:
+                pass
 
         for g in self.ghosts:
             g.set_setpoint(self.players[0].x, self.players[0].y)
