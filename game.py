@@ -225,6 +225,7 @@ class Game:
     def update(self):
 
         if self.dots_eaten == 236:
+            #reset the map
             self.init_map()
             self.governor = Governor(self)
             self.dots_eaten = 0
