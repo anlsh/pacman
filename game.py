@@ -27,8 +27,6 @@ class Game:
         fontlib.add_file("resources/prstartk.ttf")
         self.font = fontlib.load("Press Start K", 10, bold=True, italic=False)
 
-        self.state = "game"
-
         self.draw_rectangle = self.glVertex2f = self.draw_segment = self.draw_line = self.odraw_segment = None
         self.xoff = xoff
         self.yoff = yoff
@@ -226,40 +224,45 @@ class Game:
 
     def update(self):
 
-        if self.state == "game":
-            self.governor.update()
+        if self.dots_eaten == 236:
+            self.init_map()
+            self.governor = Governor()
+            time.sleep(3)
+            return None
+        
+        self.governor.update()
 
-            for p in self.players:
-                p.update()
-                if self.grid[int(p.y)][int(p.x)] == "d":
-                    self.dots_eaten += 1
-                    self.score += 10
-                    self.grid[int(p.y)][int(p.x)] = "e"
+        for p in self.players:
+            p.update()
+            if self.grid[int(p.y)][int(p.x)] == "d":
+                self.dots_eaten += 1
+                self.score += 10
+                self.grid[int(p.y)][int(p.x)] = "e"
 
-                elif self.grid[int(p.y)][int(p.x)] == "p":
-                    self.pups_eaten += 1
-                    self.score += 50
-                    self.grid[int(p.y)][int(p.x)] = "e"
-                    self.governor.fire_pup()
+            elif self.grid[int(p.y)][int(p.x)] == "p":
+                self.pups_eaten += 1
+                self.score += 50
+                self.grid[int(p.y)][int(p.x)] = "e"
+                self.governor.fire_pup()
 
-            for g in self.ghosts:
-                g.set_setpoint(self.players[0].x, self.players[0].y)
-                g.update()
+        for g in self.ghosts:
+            g.set_setpoint(self.players[0].x, self.players[0].y)
+            g.update()
 
-                if [int(g.x), int(g.y)] == [int(self.players[0].x), int(self.players[0].y)]:
-                    if g.state == "scared" or g.state == "escape":
-                        self.score += 200
-                        g.state = "escape"
+            if [int(g.x), int(g.y)] == [int(self.players[0].x), int(self.players[0].y)]:
+                if g.state == "scared" or g.state == "escape":
+                    self.score += 200
+                    g.state = "escape"
+                else:
+                    self.lives -= 1
+
+                    if self.lives > 0:
+                        time.sleep(3)
+                        self.governor = Governor(self)
+
                     else:
-                        self.lives -= 1
-
-                        if self.lives > 0:
-                            time.sleep(3)
-                            self.governor = Governor(self)
-
-                        else:
-                            time.sleep(3)
-                            self.over = True
+                        time.sleep(3)
+                        self.over = True
 
         self.lives_label.text = "Lives:" + str(self.lives)
         self.score_label.text = "Score:" + str(self.score)

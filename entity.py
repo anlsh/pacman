@@ -28,5 +28,5 @@ class Entity:
         '''
         if self.x <= 21/20 and self.theta == 180:
             self.x = Fraction(31 - self.speed, 1)
-        if self.x >= 31 and self.theta == 0:
+        if self.x >= 31 - self.speed and self.theta == 0:
             self.x = Fraction(1, 2)
