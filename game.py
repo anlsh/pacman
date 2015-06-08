@@ -10,7 +10,7 @@ from ctypes import pointer, sizeof
 
 class Game:
 
-    def __init__(self, handle):
+    def __init__(self, handle, xoff=0, yoff=0):
         '''
         This is... a really big class. It parses a grid from a game file, and takes care of drawing the grid, updating
         entities, etc.
@@ -18,11 +18,12 @@ class Game:
         :returns: Nothing
         '''
 
-        # TODO implement procedural generation
-
         self.draw_rectangle = self.glVertex2f = self.draw_segment = self.draw_line = self.odraw_segment = None
-        self.xoff = self.yoff = None
-        self.graphics_group = GraphicsGroup(self, x=0, y=0)
+        self.xoff = xoff
+        self.yoff = yoff
+        self.graphics_group = GraphicsGroup(self, x=xoff, y=yoff)
+
+        self.score = 0
 
         # Open a game file and convert it into a grid. Somewhat confusingly, the tile at (x,y) on the grid is accessed
         # by grid[y][x]. Up and right increase y and x respectively
@@ -38,10 +39,12 @@ class Game:
         # checked on ever iteration
         self.line_points = []
         self.circle_points = []
+        self.circle_chunks = []
         self.calculate_static_map()
 
         # Set up buffers and upload relevant vertex data to them, this is muy faster than using glBegin, etc...
 
+        self.line_points = self.graphics_group.transform_array(self.line_points)
         self.line_data_l = self.line_points.__len__()
         self.line_vbo = GLuint()
         glGenBuffers(1, pointer(self.line_vbo))
@@ -49,7 +52,13 @@ class Game:
         glBindBuffer(GL_ARRAY_BUFFER, self.line_vbo)
         glBufferData(GL_ARRAY_BUFFER, sizeof(self.line_gldata), pointer(self.line_gldata), GL_STATIC_DRAW)
 
+        # Circles require some special treatment
+
+        self.circle_points = self.graphics_group.transform_array(self.circle_points)
         self.circle_data_l = self.circle_points.__len__()
+        self.chunks = [self.circle_points[x:x+2] for x in range(0, len(self.circle_points), 2)]
+        self.circle_vbos = copy(self.chunks)
+
         self.circle_vbo = GLuint()
         glGenBuffers(1, pointer(self.circle_vbo))
         self.circle_gldata = (GLfloat*self.circle_data_l)(*self.circle_points)
@@ -74,7 +83,6 @@ class Game:
         # this checks all of them once and creates functions using functools.partial() to draw the game which can be
         # called quickly.
         # I'm not going to comment this method, that would take waaay too long. Maybe another day
-        # TODO Comment this method
 
         for y in range(len(self.grid)):
 
@@ -160,25 +168,36 @@ class Game:
         glDrawArrays(GL_LINES, 0, self.line_data_l)
 
         # Draw circles
+
         glBindBuffer(GL_ARRAY_BUFFER, self.circle_vbo)
         glVertexPointer(2, GL_FLOAT, 0, 0)
-        glDrawArrays(GL_LINE_STRIP, 0, self.circle_data_l)
+        glDrawArrays(GL_LINES, 0, self.circle_data_l)
+
+        for y in range(len(self.grid)):
+            for x in range(len(self.grid[y])):
+                if self.grid[y][x] == "d":
+                    glColor3f(1, 1, 0)
+                    glPointSize(5 / 24 * GRID_DIM)
+                    glBegin(GL_POINTS)
+                    self.glVertex2f(GRID_DIM * x + GRID_DIM / 2, GRID_DIM * y + GRID_DIM / 2)
+                    glEnd()
 
     def update(self):
 
         # Update players and ghosts
         # TODO Make a Governor class which will direct the behaviour (mode) of the ghosts
-        # TODO Implement eating dots
+
         for p in self.players:
             p.update()
+            if self.grid[int(p.y)][int(p.x)] == "d":
+                self.grid[int(p.y)][int(p.x)] = "e"
+                self.eat(int(p.x), int(p.y))
 
         for g in self.ghosts:
             g.set_setpoint(self.players[0].x, self.players[0].y)
             g.update()
 
-    def eat(self, y, x):
+    def eat(self, x, y):
 
-        # Method to eat dots, not used anywhere
-        # TODO Use this method somewhere
         self.grid[y][x] = "e"
         self.score += 1

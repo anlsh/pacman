@@ -1,8 +1,6 @@
 __author__ = 'anish'
 
-from pyglet.gl import glBegin, glEnd, glLineWidth, glColor3f, glVertex2f, GL_QUADS, GL_LINE_LOOP, GL_LINE_STRIP, \
-    GL_LINES
-from functools import partial
+from pyglet.gl import glLineWidth, glVertex2f, GL_QUADS
 from common import *
 
 
@@ -20,9 +18,6 @@ class GraphicsGroup:
 
         self.xoff = x
         self.yoff = y
-
-        game.xoff = x
-        game.yoff = y
 
         game.draw_rectangle = self.draw_rectangle
         game.glVertex2f = self.glVertex2f
@@ -54,30 +49,23 @@ class GraphicsGroup:
             self.glVertex2f(x + radius * cos(theta), y + radius * sin(theta))
         glEnd()
 
-    def odraw_segment(self, x, y, radius, start_theta, stop_theta, vertex_array, step=2):
+    def odraw_segment(self, x, y, radius, start_theta, stop_theta, vertex_array, step=1):
 
         # Even more optimisations on the draw_segment method- this adds relevant vertexes to a vertex array
-
-        # TODO This method is much better than simply making calls to partial in drawing a static game, but FPS may
-        # still dip to the high 40s intermittently even with a step of 1. Further optimizations are in order
-
         for i in range(step + 1):
             theta = start_theta + (stop_theta - start_theta) / step * i
             vertex_array.extend((x + radius * cos(theta), y + radius * sin(theta)))
 
-    def old_odraw_segment(self, x, y, radius, start_theta, stop_theta, func_ptrs, step=2):
-        # Optimised version of the draw_segment method, meant to push a set of function pointers onto
-        # a pre-existing array
-
-        # TODO This method is much better than simply making calls to partial in drawing a static game, but FPS may
-        # still dip to the high 40s intermittently even with a step of 1. Further optimizations are in order
-
-        func_ptrs.append(partial(glBegin, GL_LINE_STRIP))
-        for i in range(step + 1):
-            theta = start_theta + (stop_theta - start_theta) / step * i
-            func_ptrs.append(partial(self.glVertex2f, x + radius * cos(theta), y + radius * sin(theta)))
-        func_ptrs.append(partial(glEnd))
-
     def draw_line(self, x1, y1, x2, y2, vertex_array):
 
         vertex_array.extend((x1, y1, x2, y2))
+
+    def transform_array(self, arr):
+
+        for i in range(len(arr)):
+            if i % 2 == 0:
+                arr[i] += self.xoff
+            else:
+                arr[i] += self.yoff
+
+        return arr

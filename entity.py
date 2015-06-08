@@ -33,4 +33,3 @@ class Entity:
         Moves the play every iteration, also left unimplemented b/c ghosts and players move differently
         :return:
         '''
-        raise NotImplementedError
