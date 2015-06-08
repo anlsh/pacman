@@ -14,6 +14,7 @@ class Player(Entity):
         super().__init__(x, y, game)
 
         # movement related variables specific to how a player move
+        self.theta = 180
         self.want_theta = 180
         self.last_theta = None
         self.horizontal_mismatch = False

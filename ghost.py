@@ -5,6 +5,7 @@ from pyglet import image
 from copy import copy
 from common import *
 from random import randint
+from fractions import Fraction
 
 
 class Ghost(Entity):
@@ -95,14 +96,23 @@ class Ghost(Entity):
         super().update()
 
         if self.state == "chase":
+            self.speed = Fraction(1, 20)
+            self.x -= self.x % self.speed
+            self.y -= self.y % self.speed
             if not self.escaped():
                 self.state = "escape"
             self.set_setpoint(*self.target())
         if self.state == "wander":
+            self.speed = Fraction(1, 20)
+            self.x -= self.x % self.speed
+            self.y -= self.y % self.speed
             if not self.escaped():
                 self.state = "escape"
             self.set_setpoint(*self.wanderpoint)
         if self.state == "scared":
+            self.speed = Fraction(1, 40)
+            self.x -= self.x % self.speed
+            self.y -= self.y % self.speed
             self.set_setpoint(*self.wander())
         if self.state == "idle":
             if self.game.dots_eaten >= self.dot_threshold:
@@ -111,6 +121,9 @@ class Ghost(Entity):
             else:
                 return None
         if self.state == "escape":
+            self.speed = Fraction(1, 10)
+            self.x -= self.x % self.speed
+            self.y -= self.y % self.speed
             self.set_setpoint(*self.escape_tile)
             if [self.x, self.y] == self.escape_tile:
                 self.state = "wander"

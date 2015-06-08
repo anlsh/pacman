@@ -3,6 +3,7 @@ from time import time
 from player import *
 from ghost import *
 
+
 class Governor:
 
     def __init__(self, game):
@@ -30,21 +31,21 @@ class Governor:
             self.set_ghost_states("chase", override_idle=True)
             return None
 
-        if self.game.level == 1:
-
-            if self.into_time(0, 7):
-                self.master_state = "wander"
-            elif self.into_time(7, 27):
-                self.master_state = "chase"
-            elif self.into_time(27, 34):
-                self.master_state = "wander"
-            elif self.into_time(34, 54):
-                self.master_state = "chase"
-            elif self.into_time(54, 59):
-                self.master_state = "wander"
-            elif self.into_time(59, 70):
-                self.master_state = "chase"
-                self.indefinite_chase = True
+        # TODO implement more levels :(
+        #if self.game.level == 1:
+        if self.into_time(0, 7):
+            self.master_state = "wander"
+        elif self.into_time(7, 27):
+            self.master_state = "chase"
+        elif self.into_time(27, 34):
+            self.master_state = "wander"
+        elif self.into_time(34, 54):
+            self.master_state = "chase"
+        elif self.into_time(54, 59):
+            self.master_state = "wander"
+        elif self.into_time(59, 70):
+            self.master_state = "chase"
+            self.indefinite_chase = True
 
         self.set_ghost_states(self.master_state)
 

@@ -12,7 +12,7 @@ class Driver(pyglet.window.Window):
         super().__init__(width, length)
         self.w = width
         self.l = length
-        self.game = Game("map_classic.txt", xoff=-2 * GRID_DIM, yoff=0)
+        self.game = Game(self, xoff=-2 * GRID_DIM, yoff=50)
 
         self.state = "GAME"
 
@@ -25,6 +25,9 @@ class Driver(pyglet.window.Window):
 
     def update(self, dt):
 
+        if self.game.over:
+            self.game = Game(self, xoff=-2 * GRID_DIM, yoff=50)
+
         if self.state == "GAME":
             for x in self.game.players:
                 self.push_handlers(x.keys)
@@ -36,7 +39,7 @@ class Driver(pyglet.window.Window):
 
 if __name__ == "__main__":
 
-    game = Driver(28*GRID_DIM, 30*GRID_DIM)
+    game = Driver(28*GRID_DIM, 30*GRID_DIM + 50)
 
     pyglet.clock.schedule_interval(game.update, 1 / CLOCKS_PER_SEC)
     pyglet.clock.set_fps_limit(60)

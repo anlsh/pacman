@@ -5,19 +5,29 @@ from common import *
 from governor import *
 from graphicsgroup import GraphicsGroup
 
+import pyglet
+import pyglet.font as fontlib
+
 from pyglet.gl import *
 from ctypes import pointer, sizeof
+import time
 
 
 class Game:
 
-    def __init__(self, handle, xoff=0, yoff=0):
+    def __init__(self, window, handle="map_classic.txt", xoff=0, yoff=0):
         '''
         This is... a really big class. It parses a grid from a game file, and takes care of drawing the grid, updating
         entities, etc.
         :param handle: The filename of the game to play
         :returns: Nothing
         '''
+
+        self.over = False
+        fontlib.add_file("resources/prstartk.ttf")
+        self.font = fontlib.load("Press Start K", 10, bold=True, italic=False)
+
+        self.state = "game"
 
         self.draw_rectangle = self.glVertex2f = self.draw_segment = self.draw_line = self.odraw_segment = None
         self.xoff = xoff
@@ -26,9 +36,8 @@ class Game:
 
         # Open a game file and convert it into a grid. Somewhat confusingly, the tile at (x,y) on the grid is accessed
         # by grid[y][x]. Up and right increase y and x respectively
-        with open(handle) as f:
-            self.grid = list(reversed(f.readlines()))
-            self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
+        self.handle = handle
+        self.init_map()
 
         self.players = self.ghosts = None
 
@@ -36,9 +45,25 @@ class Game:
 
         self.level = 1
         self.score = 0
+        self.lives = 3
         self.dots_eaten = 0
         self.pups_eaten = 0
         self.governor = Governor(self)
+
+        self.score_label = pyglet.text.Label("foo",
+                          font_name='Press Start K',
+                          font_size=12,
+                          x=0, y=0)
+
+        self.lives_label = pyglet.text.Label("foo",
+                          font_name='Press Start K',
+                          font_size=12,
+                          x=0, y=20)
+
+    def init_map(self, ):
+        with open(self.handle) as f:
+            self.grid = list(reversed(f.readlines()))
+            self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
 
     def init_buffers(self):
 
@@ -82,6 +107,9 @@ class Game:
 
         for g in self.ghosts:
             g.draw()
+
+        self.score_label.draw()
+        self.lives_label.draw()
 
     def calculate_static_map(self):
 
@@ -198,22 +226,40 @@ class Game:
 
     def update(self):
 
-        # Update players and ghosts
-        # TODO Make a Governor class which will direct the behaviour (mode) of the ghosts
+        if self.state == "game":
+            self.governor.update()
 
-        self.governor.update()
+            for p in self.players:
+                p.update()
+                if self.grid[int(p.y)][int(p.x)] == "d":
+                    self.dots_eaten += 1
+                    self.score += 10
+                    self.grid[int(p.y)][int(p.x)] = "e"
 
-        for p in self.players:
-            p.update()
-            if self.grid[int(p.y)][int(p.x)] == "d":
-                self.dots_eaten += 1
-                self.grid[int(p.y)][int(p.x)] = "e"
+                elif self.grid[int(p.y)][int(p.x)] == "p":
+                    self.pups_eaten += 1
+                    self.score += 50
+                    self.grid[int(p.y)][int(p.x)] = "e"
+                    self.governor.fire_pup()
 
-            elif self.grid[int(p.y)][int(p.x)] == "p":
-                self.pups_eaten += 1
-                self.grid[int(p.y)][int(p.x)] = "e"
-                self.governor.fire_pup()
+            for g in self.ghosts:
+                g.set_setpoint(self.players[0].x, self.players[0].y)
+                g.update()
 
-        for g in self.ghosts:
-            g.set_setpoint(self.players[0].x, self.players[0].y)
-            g.update()
+                if [int(g.x), int(g.y)] == [int(self.players[0].x), int(self.players[0].y)]:
+                    if g.state == "scared" or g.state == "escape":
+                        self.score += 200
+                        g.state = "escape"
+                    else:
+                        self.lives -= 1
+
+                        if self.lives > 0:
+                            time.sleep(3)
+                            self.governor = Governor(self)
+
+                        else:
+                            time.sleep(3)
+                            self.over = True
+
+        self.lives_label.text = "Lives:" + str(self.lives)
+        self.score_label.text = "Score:" + str(self.score)
