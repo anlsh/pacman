@@ -4,28 +4,39 @@ from sprite import Sprite
 from pyglet import image
 from copy import copy
 from common import *
+from random import randint
 
 
 class Ghost(Entity):
 
-    # TODO make the class use sprites
-
-    def __init__(self, x, y, game, want_x=None, want_y=None):
+    def __init__(self, x, y, game):
 
         super().__init__(x, y, game)
 
         # setpoint coordinates
+        self.start_x = x
+        self.start_y = y
+
         self.want_x = None
         self.want_y = None
+        self.escape_tile = [15.5, 18.5]
+        self.wanderpoint = []
 
         self.count = 0
+        self.dot_threshold = None
 
-        self.state = "wander"
+        self.state = "idle"
 
-        if want_x is None or want_y is None:
-            self.set_setpoint(x, y)
-        else:
-            self.set_setpoint(want_x, want_y)
+        scared_spritesheet = Entity.spritesheet.get_region(4 * 32, 6 * 32, 4 * 32, 32)
+
+        # Convert the image into an array of images, and center their anchor points <pyglet>
+        self.scared_sprites = image.ImageGrid(scared_spritesheet, 1, 4, item_width=32, item_height=32)
+        for i in range(len(self.scared_sprites)):
+            self.scared_sprites[i].anchor_x = self.scared_sprites[i].width // 2
+            self.scared_sprites[i].anchor_y = self.scared_sprites[i].width // 2
+
+        # Convert the images in the array to sprites <pyglet>
+        self.scared_sprites = [Sprite(i, self.game.graphics_group) for i in self.scared_sprites]
 
     def update_movement_possibilities(self):
         '''
@@ -80,7 +91,33 @@ class Ghost(Entity):
         Moves the ghost towards the player
         :return: None
         '''
-        # TODO Implement targeting for multiple players if I have time
+
+        super().update()
+
+        if self.state == "chase":
+            if not self.escaped():
+                self.state = "escape"
+            self.set_setpoint(*self.target())
+        if self.state == "wander":
+            if not self.escaped():
+                self.state = "escape"
+            self.set_setpoint(*self.wanderpoint)
+        if self.state == "scared":
+            self.set_setpoint(*self.wander())
+        if self.state == "idle":
+            if self.game.dots_eaten >= self.dot_threshold:
+                self.state = "escape"
+                self.dot_threshold = 100000
+            else:
+                return None
+        if self.state == "escape":
+            self.set_setpoint(*self.escape_tile)
+            if [self.x, self.y] == self.escape_tile:
+                self.state = "wander"
+
+        self.low_level_update()
+
+    def low_level_update(self):
 
         self.update_movement_possibilities()
 
@@ -142,100 +179,87 @@ class Ghost(Entity):
         #Based on the count and the current theta, draw a frame rotated at the appropriate angle
 
         try:
-            self.sprites[int(self.count % 2)][self.theta].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
-            self.sprites[int(self.count % 2)][self.theta].draw()
+            if self.state != "scared":
+                self.sprites[int(self.count % 2)][self.theta].set_position(int(self.x * GRID_DIM),
+                                                                           int(self.y * GRID_DIM))
+                self.sprites[int(self.count % 2)][self.theta].draw()
+
+            elif self.state == "scared":
+                self.scared_sprites[int(self.count % 2)].set_position(int(self.x * GRID_DIM),
+                                                                           int(self.y * GRID_DIM))
+                self.scared_sprites[int(self.count % 2)].draw()
+
         except KeyError:
-            self.sprites[0][0].set_position(self.x * GRID_DIM, self.y * GRID_DIM)
-            self.sprites[0][0].draw()
+            self.sprites[int(self.count % 2)][90].set_position(self.x * GRID_DIM, self.y * GRID_DIM)
+            self.sprites[int(self.count % 2)][90].draw()
+
+    def escaped(self):
+
+        return [self.x, self.y] != [self.start_x, self.start_y]
+
+    def wander(self):
+
+        return [randint(0, 32), randint(0, 31)]
 
 
 class Blinky(Ghost):
 
-    def __init__(self, x, y, game, want_x=None, want_y=None):
+    def __init__(self, x, y, game):
 
-        super().__init__(x, y, game, want_x, want_y)
+        super().__init__(x, y, game)
         self.load_resources(5)
+        self.wanderpoint = [100, 100]
+        self.dot_threshold = 0
 
-    def update(self):
-
-        if self.state == "chase":
-            self.set_setpoint(self.game.players[0].x, self.game.players[0].y)
-        elif self.state == "wander":
-            self.set_setpoint(100, 100)
-        elif self.state == "scared":
-            # TODO implement a common "run" method for ghosts to use when scared
-            pass
-
-        super().update()
+    def target(self):
+        return [self.game.players[0].x, self.game.players[0].y]
 
 
 class Pinky(Ghost):
 
-    def __init__(self, x, y, game, want_x=None, want_y=None):
+    def __init__(self, x, y, game):
 
-        super().__init__(x, y, game, want_x, want_y)
+        super().__init__(x, y, game)
         self.load_resources(4)
+        self.wanderpoint = [0, 100]
+        self.dot_threshold = 30
 
-    def update(self):
+    def target(self):
 
-        if self.state == "chase":
-            self.set_setpoint(self.game.players[0].x + 4 * cos(self.game.players[0].theta),
-                              self.game.players[0].y + 4 * sin(self.game.players[0].theta))
-        elif self.state == "wander":
-            self.set_setpoint(0, 100)
-        elif self.state == "scared":
-            # TODO implement a common "run" method for ghosts to use when scared
-            pass
-
-        super().update()
+        return [self.game.players[0].x + 4 * cos(self.game.players[0].theta),
+                              self.game.players[0].y + 4 * sin(self.game.players[0].theta)]
 
 
 class Inky(Ghost):
 
-    def __init__(self, x, y, game, want_x=None, want_y=None):
+    def __init__(self, x, y, game):
 
-        super().__init__(x, y, game, want_x, want_y)
+        super().__init__(x, y, game)
         self.load_resources(3)
+        self.wanderpoint = [0, -5]
+        self.dot_threshold = 60
 
-    def update(self):
+    def target(self):
+        x1 = self.game.players[0].x + 2 * cos(self.game.players[0].theta)
+        y1 = self.game.players[0].y + 2 * sin(self.game.players[0].theta)
 
-        if self.state == "chase":
-            x1 = self.game.players[0].x + 2 * cos(self.game.players[0].theta)
-            y1 = self.game.players[0].y + 2 * sin(self.game.players[0].theta)
+        vecx = x1 - self.game.ghosts[0].x
+        vecy = y1 - self.game.ghosts[0].y
 
-            vecx = x1 - self.game.ghosts[0].x
-            vecy = y1 - self.game.ghosts[0].y
-
-            self.set_setpoint(self.game.ghosts[0].x + 2 * vecx, self.game.ghosts[0].y + 2 * vecy)
-
-        elif self.state == "wander":
-            self.set_setpoint(0, -5)
-        elif self.state == "scared":
-            # TODO implement a common "run" method for ghosts to use when scared
-            pass
-
-        super().update()
+        return [self.game.ghosts[0].x + 2 * vecx, self.game.ghosts[0].y + 2 * vecy]
 
 
 class Clyde(Ghost):
 
-    def __init__(self, x, y, game, want_x=None, want_y=None):
+    def __init__(self, x, y, game):
 
-        super().__init__(x, y, game, want_x, want_y)
+        super().__init__(x, y, game)
         self.load_resources(2)
+        self.wanderpoint = [30, -1]
+        self.dot_threshold = 90
 
-    def update(self):
-
-        if self.state == "chase":
-            if pow(self.x - self.game.players[0].x, 2) + pow(self.y - self.game.players[0].y, 2) <= 64:
-                self.set_setpoint(30, -1)
-            else:
-                self.set_setpoint(self.game.players[0].x, self.game.players[0].y)
-
-        elif self.state == "wander":
-            self.set_setpoint(30, -1)
-        elif self.state == "scared":
-            # TODO implement a common "run" method for ghosts to use when scared
-            pass
-
-        super().update()
+    def target(self):
+        if pow(self.x - self.game.players[0].x, 2) + pow(self.y - self.game.players[0].y, 2) <= 64:
+                return [30, -1]
+        else:
+            return [self.game.players[0].x, self.game.players[0].y]

@@ -2,6 +2,7 @@ from pyglet.window import key
 from player import Player
 from ghost import *
 from common import *
+from governor import *
 from graphicsgroup import GraphicsGroup
 
 from pyglet.gl import *
@@ -23,18 +24,23 @@ class Game:
         self.yoff = yoff
         self.graphics_group = GraphicsGroup(self, x=xoff, y=yoff)
 
-        self.score = 0
-
         # Open a game file and convert it into a grid. Somewhat confusingly, the tile at (x,y) on the grid is accessed
         # by grid[y][x]. Up and right increase y and x respectively
         with open(handle) as f:
             self.grid = list(reversed(f.readlines()))
             self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
 
-        # TODO Set spawn tiles for players and ghosts on the game
-        self.players = [Player([key.W, key.A, key.S, key.D], 15.5, 8.5, self)]
-        self.ghosts = [Blinky(15.5, 18.5, self), Pinky(15.5, 16.5, self), Inky(3.5, 3.5, self), Clyde(3.5, 3.5, self)]
-        self.ents = self.players + self.ghosts
+        self.players = self.ghosts = None
+
+        self.init_buffers()
+
+        self.level = 1
+        self.score = 0
+        self.dots_eaten = 0
+        self.pups_eaten = 0
+        self.governor = Governor(self)
+
+    def init_buffers(self):
 
         # Create a set of functions to loop through to draw a static game so a ton of constant conditionals aren't
         # checked on ever iteration
@@ -183,26 +189,31 @@ class Game:
                     self.glVertex2f(GRID_DIM * x + GRID_DIM / 2, GRID_DIM * y + GRID_DIM / 2)
                     glEnd()
 
+                elif self.grid[y][x] == "p":
+                    glColor3f(1, 20/255, 147/255)
+                    glPointSize(7 / 24 * GRID_DIM)
+                    glBegin(GL_POINTS)
+                    self.glVertex2f(GRID_DIM * x + GRID_DIM / 2, GRID_DIM * y + GRID_DIM / 2)
+                    glEnd()
+
     def update(self):
 
         # Update players and ghosts
         # TODO Make a Governor class which will direct the behaviour (mode) of the ghosts
 
+        self.governor.update()
+
         for p in self.players:
             p.update()
-            try:
-                if self.grid[int(p.y)][int(p.x)] == "d":
-                    self.grid[int(p.y)][int(p.x)] = "e"
-                    self.eat(int(p.x), int(p.y))
+            if self.grid[int(p.y)][int(p.x)] == "d":
+                self.dots_eaten += 1
+                self.grid[int(p.y)][int(p.x)] = "e"
 
-            except IndexError:
-                pass
+            elif self.grid[int(p.y)][int(p.x)] == "p":
+                self.pups_eaten += 1
+                self.grid[int(p.y)][int(p.x)] = "e"
+                self.governor.fire_pup()
 
         for g in self.ghosts:
             g.set_setpoint(self.players[0].x, self.players[0].y)
             g.update()
-
-    def eat(self, x, y):
-
-        self.grid[y][x] = "e"
-        self.score += 1

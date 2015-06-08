@@ -21,15 +21,12 @@ class Entity:
 
         self.can_right = self.can_left = self.can_up = self.can_down = False
 
-    def update_movement_possibilities(self):
-        '''
-        Convenience method for the update method, left unimplemented b/c ghosts and players behave differently
-        :returns: Nothing
-        '''
-        raise NotImplementedError
-
     def update(self):
         '''
         Moves the play every iteration, also left unimplemented b/c ghosts and players move differently
         :return:
         '''
+        if self.x <= 21/20 and self.theta == 180:
+            self.x = Fraction(31 - self.speed, 1)
+        if self.x >= 31 and self.theta == 0:
+            self.x = Fraction(1, 2)

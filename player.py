@@ -14,7 +14,7 @@ class Player(Entity):
         super().__init__(x, y, game)
 
         # movement related variables specific to how a player move
-        self.want_theta = None
+        self.want_theta = 180
         self.last_theta = None
         self.horizontal_mismatch = False
         self.vertical_mismatch = False
@@ -77,6 +77,7 @@ class Player(Entity):
 
         # Pac Man can actually start moving before he reaches the center of an open tile. To account for this, some
         # conditions besides whether the immediate tile is a block are taken into account
+
         self.can_right = True \
             if self.game.grid[int(self.y)][int(self.x) + 1] != "b" else self.x % 1 < 0.5
 
@@ -90,6 +91,8 @@ class Player(Entity):
             if self.game.grid[int(self.y) - 1][int(self.x)] != "b" else self.y % 1 > 0.5
 
     def update(self):
+
+        super().update()
 
         #update the wanted direction based upon which key is pressed
         if self.keys[self.cscheme[0]]:
@@ -113,9 +116,6 @@ class Player(Entity):
         self.update_movement_possibilities()
 
         # If the player hasnt given any inputs yet, we just break out
-        # TODO :PARITY: In the original game, you just start going left, I dont think that's too important though
-        if self.want_theta is None:
-            return None
 
         # This part of the code is a bit of a hellhole... even I dont fully understand it anymore, and I'm loathe to
         # touch any of it in the hopes of breaking it. However, I'll do my best to explain it.
@@ -134,7 +134,6 @@ class Player(Entity):
                 and ((self.theta == 90 and self.y % 1 <= 0.5) or
                 (self.theta == 270 and self.y % 1 >= 0.5) or self.theta is None):
                     self.theta = self.want_theta
-
         elif self.want_theta == 180 and self.can_left:
             if self.theta == 0 or (self.game.grid[int(self.y)][int((self.x - self.speed)) - 1] != "b") \
                 and ((self.theta == 90 and self.y % 1 <= 0.5) or
@@ -206,5 +205,5 @@ class Player(Entity):
             self.sprites[int(self.count % 3)][self.theta].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
             self.sprites[int(self.count % 3)][self.theta].draw()
         except KeyError:
-            self.sprites[0][0].set_position(self.x * GRID_DIM, self.y * GRID_DIM)
-            self.sprites[0][0].draw()
+            self.sprites[2][0].set_position(self.x * GRID_DIM, self.y * GRID_DIM)
+            self.sprites[2][0].draw()
