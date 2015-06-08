@@ -253,7 +253,7 @@ class Game:
             g.update()
 
             if [int(g.x), int(g.y)] == [int(self.players[0].x), int(self.players[0].y)]:
-                if g.state == "scared" or g.state == "retreat":
+                if g.state == "scared" or g.state == "retreat" or g.state == "flashing":
                     self.score += 200
                     g.state = "retreat"
 

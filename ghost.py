@@ -115,6 +115,11 @@ class Ghost(Entity):
             self.x -= self.x % self.speed
             self.y -= self.y % self.speed
             self.set_setpoint(*self.wander())
+        if self.state == "flashing":
+            self.speed = Fraction(1, 40)
+            self.x -= self.x % self.speed
+            self.y -= self.y % self.speed
+            self.set_setpoint(*self.wander())
         if self.state == "idle":
             if self.game.dots_eaten >= self.dot_threshold:
                 self.state = "escape"
@@ -195,13 +200,12 @@ class Ghost(Entity):
         Draw the appropriate sprite to the game
         :return: None
         '''
-        # TODO Right now this just draws a box, I need to make it draw sprites
         self.count += .08
 
         #Based on the count and the current theta, draw a frame rotated at the appropriate angle
 
         try:
-            if self.state != "scared":
+            if self.state != "scared" and self.state != "flashing":
                 self.sprites[int(self.count % 2)][self.theta].set_position(int(self.x * GRID_DIM),
                                                                            int(self.y * GRID_DIM))
                 self.sprites[int(self.count % 2)][self.theta].draw()
@@ -210,6 +214,11 @@ class Ghost(Entity):
                 self.scared_sprites[int(self.count % 2)].set_position(int(self.x * GRID_DIM),
                                                                            int(self.y * GRID_DIM))
                 self.scared_sprites[int(self.count % 2)].draw()
+
+            elif self.state == "flashing":
+                self.scared_sprites[int(self.count % 4)].set_position(int(self.x * GRID_DIM),
+                                                                           int(self.y * GRID_DIM))
+                self.scared_sprites[int(self.count % 4)].draw()
 
         except KeyError:
             self.sprites[int(self.count % 2)][90].set_position(self.x * GRID_DIM, self.y * GRID_DIM)

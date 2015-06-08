@@ -195,8 +195,6 @@ class Player(Entity):
             else:
                 self.vertical_mismatch = False
 
-        print(self.x, self.y)
-
     def draw(self):
 
         # Update the count by some value. (.25 + .125) / 2 seems to work well
