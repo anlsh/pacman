@@ -10,13 +10,15 @@ class Entity:
     # All entities load from the same spritesheet, so I just initialise it as a static variable
     spritesheet = image.load("resources/sprites.png")
 
-    def __init__(self, x, y, game):
+    def __init__(self, game, x, y):
 
         self.x = Fraction(x)
         self.y = Fraction(y)
 
         self.game = game
-        self.speed = Fraction(1, 20)
+        self.base_speed = Fraction(1, 20)
+        self.speed = self.base_speed
+        self.speed_factor = Fraction(1, 1)
         self.theta = None
 
         self.can_right = self.can_left = self.can_up = self.can_down = False

@@ -11,7 +11,7 @@ from ctypes import pointer, sizeof
 
 class Game:
 
-    def __init__(self, handle):
+    def __init__(self, handle, wanted_players=1):
         '''
         This is... a really big class. It parses a grid from a game file, and takes care of drawing the grid, updating
         entities, etc.
@@ -20,11 +20,14 @@ class Game:
         '''
 
         self.graphics_group = None
-        self.players = self.ghosts = None
+        self.players = []
+        self.ghosts = []
         self.grid = []
 
-        self.load_static_map("map_classic.txt")
-        self.governor = Governor("map_classic.txt")
+        self.wanted_players = wanted_players
+
+        self.load_static_map("classic.map")
+        self.governor = Governor(self, "classic.map")
 
         self.dots_eaten = self.pups_eaten = 0
 
