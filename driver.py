@@ -14,7 +14,7 @@ class Driver(pyglet.window.Window):
         super().__init__(width, length)
         self.w = width
         self.l = length
-        self.map = Game("map_classic.txt")
+        self.game = Game("classic.map")
 
         glLineWidth(4)
         glClearColor(0, 0, 0, 1)
@@ -25,13 +25,14 @@ class Driver(pyglet.window.Window):
 
     def update(self, dt):
 
-        for x in self.map.players:
+        for x in self.game.players:
             self.push_handlers(x.keys)
-        self.map.update()
+
+        self.game.update()
 
     def on_draw(self):
         self.clear()
-        self.map.draw()
+        self.game.draw()
         self.fps_display.draw()
 
 if __name__ == "__main__":
