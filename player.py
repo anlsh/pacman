@@ -9,9 +9,14 @@ from copy import copy
 
 class Player(Entity):
 
-    def __init__(self, cscheme, x, y, game):
+    def __init__(self, game, x, y, playernum):
 
         super().__init__(x, y, game)
+
+        if playernum == 1:
+            self.cscheme = [key.UP, key.LEFT, key.DOWN, key.RIGHT]
+        elif playernum == 2:
+            self.cscheme = [key.W, key.A, key.S, key.D]
 
         # movement related variables specific to how a player move
         self.want_theta = None
@@ -20,7 +25,6 @@ class Player(Entity):
         self.vertical_mismatch = False
 
         # control scheme, contains pyglet.key objects in directions up, left, down, right
-        self.cscheme = cscheme
         # handler to which a new state is pushed every iteration by the driver class
         self.keys = key.KeyStateHandler()
 
@@ -32,7 +36,7 @@ class Player(Entity):
         # Just declaring this here for consistency
         self.sprites = []
 
-        # Load sprites into an array which can be looped through
+        # Load normal_sprites into an array which can be looped through
         self.load_resources()
 
     def load_resources(self):
@@ -41,7 +45,7 @@ class Player(Entity):
         :WARNING: This entire method is heavily dependent on pyglet-specific methods. It will need to be reworked if
         a port is attempted
         '''
-        # Slice out the needed region of the sprite sheet (32 x 32 Pac-Man sprites) <pyglet>
+        # Slice out the needed region of the sprite sheet (32 x 32 Pac-Man normal_sprites) <pyglet>
         spritesheet = Entity.spritesheet.get_region(0, Entity.spritesheet.height - 32, 3 * 32, 32)
 
         # Convert the image into an array of images, and center their anchor points <pyglet>
@@ -50,10 +54,10 @@ class Player(Entity):
             self.sprites[i].anchor_x = self.sprites[i].width // 2
             self.sprites[i].anchor_y = self.sprites[i].width // 2
 
-        # Convert the images in the array to sprites <pyglet>
+        # Convert the images in the array to normal_sprites <pyglet>
         self.sprites = [Sprite(i, self.game.graphics_group) for i in self.sprites]
 
-        # Now store the sprites in a dictionary indexed by frame and rotation angle
+        # Now store the normal_sprites in a dictionary indexed by frame and rotation angle
         temp_sprites = self.sprites
         self.sprites = {}
         for frame in range(len(temp_sprites)):
@@ -113,7 +117,6 @@ class Player(Entity):
         self.update_movement_possibilities()
 
         # If the player hasnt given any inputs yet, we just break out
-        # TODO :PARITY: In the original game, you just start going left, I dont think that's too important though
         if self.want_theta is None:
             return None
 
