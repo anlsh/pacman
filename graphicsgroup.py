@@ -21,9 +21,6 @@ class GraphicsGroup:
         self.xoff = x
         self.yoff = y
 
-        game.xoff = x
-        game.yoff = y
-
         game.draw_rectangle = self.draw_rectangle
         game.glVertex2f = self.glVertex2f
         game.draw_segment = self.draw_segment
@@ -58,15 +55,12 @@ class GraphicsGroup:
 
         # Even more optimisations on the draw_segment method- this adds relevant vertexes to a vertex array
 
-        # TODO This method is much better than simply making calls to partial in drawing a static map, but FPS may
-        # still dip to the high 40s intermittently even with a step of 1. Further optimizations are in order
-
         for i in range(step + 1):
             theta = start_theta + (stop_theta - start_theta) / step * i
-            vertex_array.extend((x + radius * cos(theta), y + radius * sin(theta)))
+            vertex_array.extend((self.xoff + x + radius * cos(theta), self.yoff + y + radius * sin(theta)))
             if i != 0 and i != step:
-                vertex_array.extend((x + radius * cos(theta), y + radius * sin(theta)))
+                vertex_array.extend((self.xoff + x + radius * cos(theta), self.yoff + y + radius * sin(theta)))
 
     def draw_line(self, x1, y1, x2, y2, vertex_array):
 
-        vertex_array.extend((x1, y1, x2, y2))
+        vertex_array.extend((self.xoff + x1, self.yoff + y1, self.xoff + x2, self.yoff + y2))
