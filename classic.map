@@ -1,3 +1,12 @@
+#MAX_PLAYERS 1
+#PLAYERSPAWN 15.5 9.5
+#PLAYERSPAWN 16.5 9.5
+#BLINKYSPAWN 16.5 17.5
+#PINKYSPAWN 15.5 17.5
+#INKYSPAWN 13.5 17.5
+#CLYDESPAWN 18.5 17.5
+#PADDING 2 2
+#DIMENSIONS 28 29
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 eebbbbbbbbbbbbbbbbbbbbbbbbbbbbee
