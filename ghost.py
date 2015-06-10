@@ -47,6 +47,7 @@ class Ghost(Entity):
 
         if self.state == "escape":
             self.set_setpoint(*self.escape_tile)
+
             if not self.escaped and [self.x, self.y] == self.escape_tile:
                 self.state = "wander"
                 self.escaped = True
@@ -70,29 +71,6 @@ class Ghost(Entity):
         self.speed = self.speeds[self.state]
 
         self.update_pos()
-
-    def set_state(self, want_state, break_idle=False, break_chase=True, break_wander=True, break_scared=False):
-
-        # The wander and chase states have no special protections by default. However, idle and scared require
-        # explicit intent to break out of, and NOTHING can overrides the escape and retreat states
-
-        if self.state == "escape" or "retreat":
-            return None
-
-        if self.state == "idle" and break_idle:
-            if self.escaped:
-                self.state = want_state
-            else:
-                self.state = "escape"
-
-        if self.state == "chase" and break_chase:
-            self.state = want_state
-
-        if self.state == "wander" and break_wander:
-            self.state = want_state
-
-        if (self.state == "scared" or self.state == "flashing") and break_scared:
-            self.state = want_state
 
     def draw(self):
         '''
@@ -121,43 +99,39 @@ class Ghost(Entity):
 
         distances = [right_distance, left_distance, down_distance, up_distance]
 
-        if self.x != self.want_x or self.y != self.want_y:
+        # This loop is needed to ensure that a valid theta is always set. If this is not included then sometimes an
+        # appropriate theta will not be set because it is not the shortest path, allowing invalid paths to be taken
 
-            # This loop is needed to ensure that a valid theta is always set. If this is not included then sometimes an
-            # appropriate theta will not be set because it is not the shortest path, allowing invalid paths to be taken
+        theta_set = False
 
-            theta_set = False
+        while not theta_set:
 
-            while not theta_set:
+            min_distance = min(distances)
 
-                min_distance = min(distances)
+            if self.can_up and up_distance == min_distance and self.theta != 270:
+                self.theta = 90
+                theta_set = True
 
-                if self.can_up and up_distance == min_distance and self.theta != 270:
-                    self.theta = 90
-                    theta_set = True
+            elif self.can_left and left_distance == min_distance and self.theta != 0:
+                self.theta = 180
+                theta_set = True
 
-                elif self.can_left and left_distance == min_distance and self.theta != 0:
-                    self.theta = 180
-                    theta_set = True
+            elif self.can_down and down_distance == min_distance and self.theta != 90:
+                self.theta = 270
+                theta_set = True
 
-                elif self.can_down and down_distance == min_distance and self.theta != 90:
-                    self.theta = 270
-                    theta_set = True
+            elif self.can_right and right_distance == min_distance and self.theta != 180:
+                self.theta = 0
+                theta_set = True
 
-                elif self.can_right and right_distance == min_distance and self.theta != 180:
-                    self.theta = 0
-                    theta_set = True
+            #if none of the minimum distances are in valid directions, remove them from consideration and reloop
+            while min_distance in distances:
+                distances = [d for d in distances if d != min_distance]
+                if not distances:
+                    distances = [1, 2, 3, 4]  # Choose in priority order up, left, down, right
 
-                #if none of the minimum distances are in valid directions, remove them from consideration and reloop
-                for x in range(len(distances)):
-                    try:
-                        distances.remove(min_distance)
-                    except ValueError:
-                        break
-
-            #update position
-            self.x += self.speed * cos(self.theta).__int__()
-            self.y += self.speed * sin(self.theta).__int__()
+        self.x += self.speed * cos(self.theta).__int__()
+        self.y += self.speed * sin(self.theta).__int__()
 
     def load_resources(self, row):
 
@@ -189,11 +163,7 @@ class Ghost(Entity):
         raise NotImplementedError
 
     def set_setpoint(self, x, y):
-        '''
-        :param x: x position of setpoint
-        :param y: y position of setpoint
-        :return: None
-        '''
+
         self.want_x = x
         self.want_y = y
 
