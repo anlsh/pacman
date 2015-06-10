@@ -1,6 +1,7 @@
 from pyglet.window import key
 from player import Player
 from ghosts import *
+from governor import *
 from common import *
 from graphicsgroup import GraphicsGroup
 
@@ -18,28 +19,44 @@ class Game:
         :returns: Nothing
         '''
 
-        self.xoff = 0
-        self.yoff = 0
-        self.graphics_group = GraphicsGroup(self, x=self.xoff, y=self.yoff)
+        self.graphics_group = None
+        self.players = self.ghosts = None
+        self.grid = []
+
+        self.load_static_map("map_classic.txt")
+        self.governor = Governor("map_classic.txt")
 
         self.dots_eaten = self.pups_eaten = 0
 
-        # Open a game file and convert it into a grid. Somewhat confusingly, the tile at (x,y) on the grid is accessed
-        # by grid[y][x]. Up and right increase y and x respectively
-        with open(handle) as f:
-            self.grid = list(reversed(f.readlines()))
-            self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
-
-        # TODO Set spawn tiles for players and ghosts on the game
-        self.players = [Player([key.W, key.A, key.S, key.D], 1.5, 1.5, self)]
-        self.ghosts = [Blinky(1.5, 1.5, self), Pinky(1.5, 1.5, self), Inky(1.5, 1.5, self), Clyde(1.5, 1.5, self)]
-
         self.init_buffers()
+
+    def load_static_map(self, handle):
+
+        with open(handle) as f:
+            file_lines = f.readlines()
+
+            i = 0
+            while i < len(file_lines):
+
+                if file_lines[i][0] == "#" and not "#PADDING" in file_lines[i]:
+                    file_lines.pop(i)
+                    i -= 1
+
+                elif file_lines[i][0] == "#":
+                    args = file_lines[i].split()
+                    self.graphics_group = GraphicsGroup(self, x=-int(args[1]) * GRID_DIM,
+                                                        y=-int(args[2]) * GRID_DIM)
+                    file_lines.pop(i)
+                    i -= 1
+
+                i += 1
+
+            self.grid = list(reversed(file_lines))
+            self.grid = [list(self.grid[z])[0:-1] for z in range(len(self.grid))]
 
     def update(self):
 
         # Update players and ghosts
-        # TODO Make a Governor class which will direct the behaviour (mode) of the ghosts
 
         for p in self.players:
             p.update()
