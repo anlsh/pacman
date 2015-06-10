@@ -11,12 +11,12 @@ class Player(Entity):
 
     def __init__(self, game, x, y, playernum):
 
-        super().__init__(x, y, game)
+        super().__init__(game, x, y)
 
         if playernum == 1:
-            self.cscheme = [key.UP, key.LEFT, key.DOWN, key.RIGHT]
-        elif playernum == 2:
             self.cscheme = [key.W, key.A, key.S, key.D]
+        elif playernum == 2:
+            self.cscheme = [key.UP, key.LEFT, key.DOWN, key.RIGHT]
 
         # movement related variables specific to how a player move
         self.want_theta = None
