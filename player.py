@@ -95,6 +95,8 @@ class Player(Entity):
 
     def update(self):
 
+        super().update()
+
         #update the wanted direction based upon which key is pressed
         if self.keys[self.cscheme[0]]:
             self.want_theta = 90

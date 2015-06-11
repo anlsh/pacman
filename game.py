@@ -42,14 +42,20 @@ class Game:
             i = 0
             while i < len(file_lines):
 
-                if file_lines[i][0] == "#" and not "#PADDING" in file_lines[i]:
-                    file_lines.pop(i)
-                    i -= 1
-
-                elif file_lines[i][0] == "#":
+                if "#PADDING" in file_lines[i]:
                     args = file_lines[i].split()
                     self.graphics_group = GraphicsGroup(self, x=-int(args[1]) * GRID_DIM,
                                                         y=-int(args[2]) * GRID_DIM)
+
+                    Entity.padding = [int(args[1]), int(args[2])]
+                    file_lines.pop(i)
+                    i -= 1
+
+                elif "#DIMENSIONS" in file_lines[i]:
+                    args = file_lines[i].split()
+                    Entity.map_dims = [int(args[1]), int(args[2])]
+
+                elif file_lines[i][0] == "#":
                     file_lines.pop(i)
                     i -= 1
 

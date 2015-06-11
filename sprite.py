@@ -1,6 +1,7 @@
 __author__ = 'anish'
 
 from pyglet.sprite import Sprite as SuperSprite
+from common import *
 
 
 class Sprite(SuperSprite):
@@ -14,6 +15,8 @@ class Sprite(SuperSprite):
 
         self.xoff = graphicsgroup.xoff
         self.yoff = graphicsgroup.yoff
+
+        self.scale = GRID_DIM / 24
 
     def set_position(self, x, y):
         super().set_position(self.xoff + int(x), self.yoff + int(y))

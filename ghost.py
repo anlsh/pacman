@@ -35,7 +35,21 @@ class Ghost(Entity):
 
         self.normal_sprites = None
 
+        # Get the scared spritesheet. This variable *could* be static, but isn't because of concerns that will never
+        # apply, probably. Christian would be proud
+
+        scared_spritesheet = Entity.spritesheet.get_region(4 * 32, 6 * 32, 4 * 32, 32)
+
+        self.scared_sprites = image.ImageGrid(scared_spritesheet, 1, 4, item_width=32, item_height=32)
+        for i in range(len(self.scared_sprites)):
+            self.scared_sprites[i].anchor_x = self.scared_sprites[i].width // 2
+            self.scared_sprites[i].anchor_y = self.scared_sprites[i].width // 2
+
+        self.scared_sprites = [Sprite(i, self.game.graphics_group) for i in self.scared_sprites]
+
     def update(self):
+
+        super().update()
 
         self.update_movement_possibilities()
 
@@ -88,6 +102,13 @@ class Ghost(Entity):
             self.normal_sprites[0][0].set_position(self.x * GRID_DIM, self.y * GRID_DIM)
             self.normal_sprites[0][0].draw()
 
+        if self.state == "idle":
+            self.normal_sprites[int(self.count % 2)][0].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
+            self.normal_sprites[int(self.count % 2)][0].draw()
+
+        elif self.state == "flashing":
+            pass
+
     def update_pos(self):
 
         # The AI attempts to take the shortest path to target. The squares of the distances are actually used to avoid
@@ -106,7 +127,15 @@ class Ghost(Entity):
 
         while not theta_set:
 
-            min_distance = min(distances)
+            try:
+                min_distance = min(distances)
+            except ValueError:
+                up_distance = 1
+                left_distance = 2
+                down_distance = 3
+                right_distance = 4
+                distances = [1, 2, 3, 4]
+                min_distance = min(distances)
 
             if self.can_up and up_distance == min_distance and self.theta != 270:
                 self.theta = 90
@@ -125,10 +154,16 @@ class Ghost(Entity):
                 theta_set = True
 
             #if none of the minimum distances are in valid directions, remove them from consideration and reloop
-            while min_distance in distances:
-                distances = [d for d in distances if d != min_distance]
-                if not distances:
-                    distances = [1, 2, 3, 4]  # Choose in priority order up, left, down, right
+            if not theta_set:
+                x = 0
+                while x < len(distances):
+
+                    if distances[x] == min_distance:
+                        distances.pop(x)
+                        x -= 1
+
+                    x += 1
+
 
         self.x += self.speed * cos(self.theta).__int__()
         self.y += self.speed * sin(self.theta).__int__()
