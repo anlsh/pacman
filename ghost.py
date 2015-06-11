@@ -104,6 +104,14 @@ class Ghost(Entity):
                                                                               int(self.y * GRID_DIM))
             self.normal_sprites[int(self.count % 2)][self.theta].draw()
 
+        elif self.state == "scared":
+            self.scared_sprites[int(self.count % 2)].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
+            self.scared_sprites[int(self.count % 2)].draw()
+
+        elif self.state == 'flashing':
+            self.scared_sprites[int(self.count % 4)].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
+            self.scared_sprites[int(self.count % 4)].draw()
+
     def update_pos(self):
 
         # The AI attempts to take the shortest path to target. The squares of the distances are actually used to avoid
@@ -122,15 +130,7 @@ class Ghost(Entity):
 
         while not theta_set:
 
-            try:
-                min_distance = min(distances)
-            except ValueError:
-                up_distance = 1
-                left_distance = 2
-                down_distance = 3
-                right_distance = 4
-                distances = [1, 2, 3, 4]
-                min_distance = min(distances)
+            min_distance = min(distances)
 
             if self.can_up and up_distance == min_distance and self.theta != 270:
                 self.theta = 90
@@ -149,15 +149,18 @@ class Ghost(Entity):
                 theta_set = True
 
             #if none of the minimum distances are in valid directions, remove them from consideration and reloop
-            if not theta_set:
-                x = 0
-                while x < len(distances):
+            for x in range(len(distances)):
+                try:
+                    distances.remove(min_distance)
+                except ValueError:
+                    break
 
-                    if distances[x] == min_distance:
-                        distances.pop(x)
-                        x -= 1
-
-                    x += 1
+            if not distances:
+                up_distance = 1
+                left_distance = 2
+                down_distance = 3
+                right_distance = 4
+                distances = [1, 2, 3, 4]
 
         self.x += self.speed * cos(self.theta).__int__()
         self.y += self.speed * sin(self.theta).__int__()
@@ -185,11 +188,12 @@ class Ghost(Entity):
 
     def panic(self):
 
+        #TODO THis isnt map-agnostic, fix later?
         return [randint(0, 32), randint(0, 31)]
 
     def target(self):
 
-        raise NotImplementedError
+        pass
 
     def set_setpoint(self, x, y):
 

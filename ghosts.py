@@ -11,7 +11,7 @@ class Blinky(Ghost):
         self.load_resources(5)
         #TODO This is hardcoded, fix
         self.wanderpoint = [100, 100]
-        self.dot_threshold = 2
+        self.dot_threshold = 0
 
     def target(self):
         return [self.game.players[0].x, self.game.players[0].y]
@@ -29,9 +29,11 @@ class Pinky(Ghost):
 
     def target(self):
 
-        return [self.game.players[0].x + 4 * cos(self.game.players[0].theta),
-                              self.game.players[0].y + 4 * sin(self.game.players[0].theta)]
-
+        try:
+            return [self.game.players[0].x + 4 * cos(self.game.players[0].theta),
+                                  self.game.players[0].y + 4 * sin(self.game.players[0].theta)]
+        except TypeError:
+            return self.wanderpoint
 
 class Inky(Ghost):
 
@@ -44,8 +46,11 @@ class Inky(Ghost):
         self.dot_threshold = 60
 
     def target(self):
-        x1 = self.game.players[0].x + 2 * cos(self.game.players[0].theta)
-        y1 = self.game.players[0].y + 2 * sin(self.game.players[0].theta)
+        try:
+            x1 = self.game.players[0].x + 2 * cos(self.game.players[0].theta)
+            y1 = self.game.players[0].y + 2 * sin(self.game.players[0].theta)
+        except TypeError:
+            return self.wanderpoint
 
         vecx = x1 - self.game.ghosts[0].x
         vecy = y1 - self.game.ghosts[0].y
