@@ -9,8 +9,6 @@ class Entity:
 
     # All entities load from the same spritesheet, so I just initialise it as a static variable
     spritesheet = image.load("resources/sprites.png")
-    map_dims = None
-    padding = None
 
     def __init__(self, game, x, y):
 
@@ -33,9 +31,8 @@ class Entity:
         raise NotImplementedError
 
     def update(self):
-
-        if self.x <= Fraction(1, 2) and self.theta == 180:
-            self.x = Fraction(Entity.map_dims[1] + Fraction(Entity.padding[0]) - Fraction(1, 2))
-
-        elif self.x >= Fraction(Entity.map_dims[1] + Fraction(Entity.padding[0]) - Fraction(1, 2)) and self.theta == 0:
-            self.x = Fraction(1, 2)
+        '''
+        Moves the play every iteration, also left unimplemented b/c ghosts and players move differently
+        :return:
+        '''
+        raise NotImplementedError

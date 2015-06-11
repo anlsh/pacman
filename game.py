@@ -23,6 +23,7 @@ class Game:
         self.players = []
         self.ghosts = []
         self.grid = []
+        self.level = 1
 
         self.wanted_players = wanted_players
 
@@ -59,6 +60,7 @@ class Game:
 
     def update(self):
 
+        self.governor.update()
         # Update players and ghosts
 
         for p in self.players:
@@ -68,6 +70,12 @@ class Game:
 
                 self.grid[int(p.y)][int(p.x)] = "e"
                 self.dots_eaten += 1
+
+            if self.grid[int(p.y)][int(p.x)] == "p":
+
+                self.grid[int(p.y)][int(p.x)] = "e"
+                self.pups_eaten += 1
+                self.governor.fire_pup()
 
         for g in self.ghosts:
             g.update()
