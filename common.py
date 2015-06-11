@@ -2,7 +2,6 @@ __author__ = 'anish'
 
 # Just a file to contain constants and methods to be used throughout the project
 from math import sin as s, cos as c, radians
-from pyglet.gl import glBegin, GL_LINE_STRIP, glEnd, glVertex2f
 
 # Number of times to update per second
 CLOCKS_PER_SEC = 64

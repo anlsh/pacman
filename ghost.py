@@ -47,11 +47,49 @@ class Ghost(Entity):
 
         self.scared_sprites = [Sprite(i, self.game.graphics_group) for i in self.scared_sprites]
 
+    def update_movement_possibilities(self):
+        '''
+        Method meant to calculate possible directions the entity can go in. This does not account for the no-reversal
+        rule- that is taken care of in the update method. This simply tests for a block in the desired position
+        :return: None
+        '''
+        #The .000001 is included to make sure that the method correctly detects the presence of a block on the game
+        # The constant's value does not matter, but it should be smaller than 1 / self.speed
+        self.can_up = self.x % 1 == 0.5 and self.game.grid[int(self.y + 0.5)][int(self.x)] != "b"
+        self.can_left = self.y % 1 == 0.5 and self.game.grid[int(self.y)][int(self.x - 0.5 - .00000001)] != "b"
+        self.can_down = self.x % 1 == 0.5 and self.game.grid[int(self.y - 0.5 - .000000001)][int(self.x)] != "b" and \
+            self.game.grid[int(self.y - 0.5 - .000000001)][int(self.x)] != "g"
+        self.can_right = self.y % 1 == 0.5 and self.game.grid[int(self.y)][int(self.x + 0.5)] != "b"
+
+    def load_resources(self, row):
+
+        # Slice out the needed region of the sprite sheet (32 x 32 Pac-Man normal_sprites)
+        spritesheet = Entity.spritesheet.get_region(0, row * 32, 8 * 32, 32)
+
+        # Convert the image into an array of images, and center their anchor points
+        self.normal_sprites = image.ImageGrid(spritesheet, 1, 8, item_width=32, item_height=32)
+        for i in range(len(self.normal_sprites)):
+            self.normal_sprites[i].anchor_x = self.normal_sprites[i].width // 2
+            self.normal_sprites[i].anchor_y = self.normal_sprites[i].width // 2
+
+        # Convert the images in the array to normal_sprites
+        self.normal_sprites = [Sprite(i, self.game.graphics_group) for i in self.normal_sprites]
+
+        temp = copy(self.normal_sprites)
+        self.normal_sprites = {}
+        angles = {90: temp[0], 270: temp[2], 180: temp[4], 0: temp[6]}
+        self.normal_sprites[0] = angles
+        angles = {0: temp[7], 90: temp[1], 270: temp[3], 180: temp[5]}
+        self.normal_sprites[1] = angles
+
+    def set_setpoint(self, x, y):
+
+        self.want_x = x
+        self.want_y = y
+
     def update(self):
 
         super().update()
-
-        self.update_movement_possibilities()
 
         if not self.escaped and self.game.dots_eaten >= self.dot_threshold:
             self.state = "escape"
@@ -86,40 +124,16 @@ class Ghost(Entity):
 
         self.update_pos()
 
-    def draw(self):
-        '''
-        Draw the appropriate sprite to the game
-        :return: None
-        '''
-        self.count += .08
-
-        #Based on the count and the current theta, draw a frame rotated at the appropriate angle
-
-        if self.state == "idle":
-            self.normal_sprites[int(self.count % 2)][0].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
-            self.normal_sprites[int(self.count % 2)][0].draw()
-
-        elif self.state == "chase" or self.state == "wander" or self.state == "escape":
-            self.normal_sprites[int(self.count % 2)][self.theta].set_position(int(self.x * GRID_DIM),
-                                                                              int(self.y * GRID_DIM))
-            self.normal_sprites[int(self.count % 2)][self.theta].draw()
-
-        elif self.state == "scared":
-            self.scared_sprites[int(self.count % 2)].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
-            self.scared_sprites[int(self.count % 2)].draw()
-
-        elif self.state == 'flashing':
-            self.scared_sprites[int(self.count % 4)].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
-            self.scared_sprites[int(self.count % 4)].draw()
-
     def update_pos(self):
+
+        self.update_movement_possibilities()
 
         # The AI attempts to take the shortest path to target. The squares of the distances are actually used to avoid
         # having to call math.sqrt
-        up_distance = pow(self.x - self.want_x, 2) + pow(self.y + self.speed - self.want_y, 2)
-        left_distance = pow(self.x - self.speed - self.want_x, 2) + pow(self.y - self.want_y, 2)
-        down_distance = pow(self.x - self.want_x, 2) + pow(self.y - self.speed - self.want_y, 2)
-        right_distance = pow(self.x + self.speed - self.want_x, 2) + pow(self.y - self.want_y, 2)
+        up_distance = pow(float(self.x) - float(self.want_x), 2) + pow(float(self.y) + float(self.speed) - float(self.want_y), 2)
+        left_distance = pow(float(self.x) - float(self.speed) - float(self.want_x), 2) + pow(float(self.y) - float(self.want_y), 2)
+        down_distance = pow(float(self.x) - float(self.want_x), 2) + pow(float(self.y) - float(self.speed) - float(self.want_y), 2)
+        right_distance = pow(float(self.x) + float(self.speed) - float(self.want_x), 2) + pow(float(self.y) - float(self.want_y), 2)
 
         distances = [right_distance, left_distance, down_distance, up_distance]
 
@@ -149,42 +163,44 @@ class Ghost(Entity):
                 theta_set = True
 
             #if none of the minimum distances are in valid directions, remove them from consideration and reloop
-            for x in range(len(distances)):
-                try:
-                    distances.remove(min_distance)
-                except ValueError:
-                    break
+            if not theta_set:
+                distances = [d for d in distances if d != min_distance]
 
-            if not distances:
-                up_distance = 1
-                left_distance = 2
-                down_distance = 3
-                right_distance = 4
-                distances = [1, 2, 3, 4]
+                if not distances:
+                    up_distance = 1
+                    left_distance = 2
+                    down_distance = 3
+                    right_distance = 4
+                    distances = [1, 2, 3, 4]
 
         self.x += self.speed * cos(self.theta).__int__()
         self.y += self.speed * sin(self.theta).__int__()
 
-    def load_resources(self, row):
+    def draw(self):
+        '''
+        Draw the appropriate sprite to the game
+        :return: None
+        '''
+        self.count += .08
 
-        # Slice out the needed region of the sprite sheet (32 x 32 Pac-Man normal_sprites)
-        spritesheet = Entity.spritesheet.get_region(0, row * 32, 8 * 32, 32)
+        #Based on the count and the current theta, draw a frame rotated at the appropriate angle
 
-        # Convert the image into an array of images, and center their anchor points
-        self.normal_sprites = image.ImageGrid(spritesheet, 1, 8, item_width=32, item_height=32)
-        for i in range(len(self.normal_sprites)):
-            self.normal_sprites[i].anchor_x = self.normal_sprites[i].width // 2
-            self.normal_sprites[i].anchor_y = self.normal_sprites[i].width // 2
+        if self.state == "idle":
+            self.normal_sprites[int(self.count % 2)][0].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
+            self.normal_sprites[int(self.count % 2)][0].draw()
 
-        # Convert the images in the array to normal_sprites
-        self.normal_sprites = [Sprite(i, self.game.graphics_group) for i in self.normal_sprites]
+        elif self.state == "chase" or self.state == "wander" or self.state == "escape":
+            self.normal_sprites[int(self.count % 2)][self.theta].set_position(int(self.x * GRID_DIM),
+                                                                              int(self.y * GRID_DIM))
+            self.normal_sprites[int(self.count % 2)][self.theta].draw()
 
-        temp = copy(self.normal_sprites)
-        self.normal_sprites = {}
-        angles = {90: temp[0], 270: temp[2], 180: temp[4], 0: temp[6]}
-        self.normal_sprites[0] = angles
-        angles = {0: temp[7], 90: temp[1], 270: temp[3], 180: temp[5]}
-        self.normal_sprites[1] = angles
+        elif self.state == "scared":
+            self.scared_sprites[int(self.count % 2)].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
+            self.scared_sprites[int(self.count % 2)].draw()
+
+        elif self.state == 'flashing':
+            self.scared_sprites[int(self.count % 4)].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
+            self.scared_sprites[int(self.count % 4)].draw()
 
     def panic(self):
 
@@ -193,23 +209,4 @@ class Ghost(Entity):
 
     def target(self):
 
-        pass
-
-    def set_setpoint(self, x, y):
-
-        self.want_x = x
-        self.want_y = y
-
-    def update_movement_possibilities(self):
-        '''
-        Method meant to calculate possible directions the entity can go in. This does not account for the no-reversal
-        rule- that is taken care of in the update method. This simply tests for a block in the desired position
-        :return: None
-        '''
-        #The .000001 is included to make sure that the method correctly detects the presence of a block on the game
-        # The constant's value does not matter, but it should be smaller than 1 / self.speed
-        self.can_up = self.x % 1 == 0.5 and self.game.grid[int(self.y + 0.5)][int(self.x)] != "b"
-        self.can_left = self.y % 1 == 0.5 and self.game.grid[int(self.y)][int(self.x - 0.5 - .00000001)] != "b"
-        self.can_down = self.x % 1 == 0.5 and self.game.grid[int(self.y - 0.5 - .000000001)][int(self.x)] != "b" and \
-            self.game.grid[int(self.y - 0.5 - .000000001)][int(self.x)] != "g"
-        self.can_right = self.y % 1 == 0.5 and self.game.grid[int(self.y)][int(self.x + 0.5)] != "b"
+        raise NotImplementedError

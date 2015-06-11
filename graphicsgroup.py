@@ -1,8 +1,7 @@
 __author__ = 'anish'
 
-from pyglet.gl import glBegin, glEnd, glLineWidth, glColor3f, glVertex2f, GL_QUADS, GL_LINE_LOOP, GL_LINE_STRIP, \
-    GL_LINES
 from functools import partial
+from pyglet.gl import glBegin, glEnd, glVertex2f, GL_LINE_STRIP, GL_QUADS
 from common import *
 
 

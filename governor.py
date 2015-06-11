@@ -67,10 +67,6 @@ class Governor:
             self.set_ghost_states(self.master_state, break_scared=True, break_wander=False, break_chase=False)
             self.flash_time = None
 
-        if self.indefinite_chase:
-            self.set_ghost_states("chase", break_idle=True)
-            return None
-
         if self.game.level == 1:
             self.pup_duration = 10
             self.flash_duration = 2
@@ -91,6 +87,7 @@ class Governor:
                 self.master_state = "wander"
             elif self.into_interval(84, 87):
                 self.master_state = "chase"
+                print("permanent chase!")
                 self.indefinite_chase = True
 
         elif 2 <= self.game.level <= 4:

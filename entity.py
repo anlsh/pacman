@@ -18,9 +18,7 @@ class Entity:
         self.y = Fraction(y)
 
         self.game = game
-        self.base_speed = Fraction(1, 20)
-        self.speed = self.base_speed
-        self.speed_factor = Fraction(1, 1)
+        self.speed = Fraction(1, 20)
         self.theta = None
 
         self.can_right = self.can_left = self.can_up = self.can_down = False
