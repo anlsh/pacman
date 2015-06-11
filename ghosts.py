@@ -14,7 +14,7 @@ class Blinky(Ghost):
         self.dot_threshold = 0
 
     def target(self):
-        return [self.game.players[0].x, self.game.players[0].y]
+        return [self.target_player.x, self.target_player.y]
 
 
 class Pinky(Ghost):
@@ -30,8 +30,8 @@ class Pinky(Ghost):
     def target(self):
 
         try:
-            return [self.game.players[0].x + 4 * cos(self.game.players[0].theta),
-                                  self.game.players[0].y + 4 * sin(self.game.players[0].theta)]
+            return [self.target_player.x + 4 * cos(self.target_player.theta),
+                                  self.target_player.y + 4 * sin(self.target_player.theta)]
         except TypeError:
             return self.wanderpoint
 
@@ -47,8 +47,8 @@ class Inky(Ghost):
 
     def target(self):
         try:
-            x1 = self.game.players[0].x + 2 * cos(self.game.players[0].theta)
-            y1 = self.game.players[0].y + 2 * sin(self.game.players[0].theta)
+            x1 = self.target_player.x + 2 * cos(self.target_player.theta)
+            y1 = self.target_player.y + 2 * sin(self.target_player.theta)
         except TypeError:
             return self.wanderpoint
 
@@ -69,7 +69,7 @@ class Clyde(Ghost):
         self.dot_threshold = 90
 
     def target(self):
-        if pow(self.x - self.game.players[0].x, 2) + pow(self.y - self.game.players[0].y, 2) <= 64:
+        if pow(self.x - self.target_player.x, 2) + pow(self.y - self.target_player.y, 2) <= 64:
                 return [30, -1]
         else:
             return self.wanderpoint

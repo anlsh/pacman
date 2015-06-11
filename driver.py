@@ -12,7 +12,10 @@ class Driver(pyglet.window.Window):
         super().__init__(width, length)
         self.w = width
         self.l = length
-        self.game = Game("classic.map")
+        self.game = Game("classic.map", xoff=0, yoff=100)
+
+        self.pre_add = True
+        self.pre_pause = True
 
         glLineWidth(4)
         glClearColor(0, 0, 0, 1)
@@ -21,10 +24,24 @@ class Driver(pyglet.window.Window):
 
     def update(self, dt):
 
-        for x in self.game.players:
-            self.push_handlers(x.keys)
+        if not self.game.over:
+            for x in self.game.players:
+                self.push_handlers(x.keys)
 
-        self.game.update()
+            if x.keys[pyglet.window.key.P] and not self.pre_add:
+                if len(self.game.players) < self.game.governor.map_max_players:
+                    self.game = Game("classic.map", xoff=0, yoff=100)
+
+            if x.keys[pyglet.window.key.O] and not self.pre_pause:
+                self.game.should_update = not self.game.should_update
+
+            self.game.update()
+
+        else:
+            self.game = Game("classic.map", xoff=0, yoff=100)
+
+        self.pre_pause = self.game.players[0].keys[pyglet.window.key.O]
+        self.pre_add = self.game.players[0].keys[pyglet.window.key.P]
 
     def on_draw(self):
         self.clear()
@@ -32,7 +49,7 @@ class Driver(pyglet.window.Window):
 
 if __name__ == "__main__":
 
-    game = Driver(28 * GRID_DIM, 29 * GRID_DIM)
+    game = Driver(28 * GRID_DIM, 29 * GRID_DIM + 100)
 
     pyglet.clock.schedule_interval(game.update, 1 / CLOCKS_PER_SEC)
     pyglet.clock.set_fps_limit(60)

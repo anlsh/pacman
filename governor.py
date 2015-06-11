@@ -12,8 +12,12 @@ class Governor:
         self.game = game
         self.master_state = "idle"
 
+        game.players = []
+        game.ghosts = []
+
         self.pup_time = None
         self.flash_time = None
+        self.map_max_player = 0
         
         self.pup_duration = 10
         self.flash_duration = 2
@@ -27,15 +31,14 @@ class Governor:
         with open(handle) as f:
 
             lines = f.readlines()
-            map_max_players = 2
             for l in lines:
                 if "#" in l:
                     args = l.split()
 
                     if args[0] == "#MAX_PLAYERS":
-                        map_max_players = int(args[1])
+                        self.map_max_players = int(args[1])
 
-                    elif args[0] == "#PLAYERSPAWN" and len(self.game.players) < map_max_players and \
+                    elif args[0] == "#PLAYERSPAWN" and len(self.game.players) < self.map_max_players and \
                         len(self.game.players) < self.game.wanted_players:
 
                         self.game.players.append(Player(self.game, args[1], args[2], len(self.game.players) + 1))
@@ -68,8 +71,8 @@ class Governor:
             self.flash_time = None
 
         if self.game.level == 1:
-            self.pup_duration = 10
-            self.flash_duration = 2
+            self.pup_duration = 9
+            self.flash_duration = 3
 
             if self.into_interval(0, 7):
                 self.master_state = "wander"
@@ -91,8 +94,8 @@ class Governor:
                 self.indefinite_chase = True
 
         elif 2 <= self.game.level <= 4:
-            self.pup_duration = 6
-            self.flash_duration = 2
+            self.pup_duration = 5
+            self.flash_duration = 3
 
             if self.into_interval(0, 7):
                 self.master_state = "wander"

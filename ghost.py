@@ -2,7 +2,7 @@ __author__ = 'anish'
 from entity import *
 from sprite import Sprite
 from pyglet import image
-from random import randint
+from random import randint, choice
 from copy import copy
 from common import *
 
@@ -20,6 +20,9 @@ class Ghost(Entity):
         self.count = 0
 
         self.state = "idle"
+        self.pre_state = None
+
+        self.target_player = choice(self.game.players)
 
         # The wanderpoint variable is specific to this each ghost
         self.wanderpoint = []
@@ -47,20 +50,6 @@ class Ghost(Entity):
 
         self.scared_sprites = [Sprite(i, self.game.graphics_group) for i in self.scared_sprites]
 
-    def update_movement_possibilities(self):
-        '''
-        Method meant to calculate possible directions the entity can go in. This does not account for the no-reversal
-        rule- that is taken care of in the update method. This simply tests for a block in the desired position
-        :return: None
-        '''
-        #The .000001 is included to make sure that the method correctly detects the presence of a block on the game
-        # The constant's value does not matter, but it should be smaller than 1 / self.speed
-        self.can_up = self.x % 1 == 0.5 and self.game.grid[int(self.y + 0.5)][int(self.x)] != "b"
-        self.can_left = self.y % 1 == 0.5 and self.game.grid[int(self.y)][int(self.x - 0.5 - .00000001)] != "b"
-        self.can_down = self.x % 1 == 0.5 and self.game.grid[int(self.y - 0.5 - .000000001)][int(self.x)] != "b" and \
-            self.game.grid[int(self.y - 0.5 - .000000001)][int(self.x)] != "g"
-        self.can_right = self.y % 1 == 0.5 and self.game.grid[int(self.y)][int(self.x + 0.5)] != "b"
-
     def load_resources(self, row):
 
         # Slice out the needed region of the sprite sheet (32 x 32 Pac-Man normal_sprites)
@@ -82,11 +71,6 @@ class Ghost(Entity):
         angles = {0: temp[7], 90: temp[1], 270: temp[3], 180: temp[5]}
         self.normal_sprites[1] = angles
 
-    def set_setpoint(self, x, y):
-
-        self.want_x = x
-        self.want_y = y
-
     def update(self):
 
         super().update()
@@ -105,6 +89,7 @@ class Ghost(Entity):
                 self.escaped = True
 
         if self.state == "retreat":
+            self.set_setpoint(*self.escape_tile)
             if [self.x, self.y] == self.escape_tile:
                 self.state = "wander"
 
@@ -120,9 +105,18 @@ class Ghost(Entity):
         if self.state == "flashing":
             self.set_setpoint(*self.panic())
 
+        if self.pre_state == "flashing" or self.pre_state == "scared" or self.pre_state == "retreat" and \
+            self.state != self.pre_state:
+
+            self.target_player = choice(self.game.players)
+
         self.speed = self.speeds[self.state]
+        self.x -= self.x % self.speed
+        self.y -= self.y % self.speed
 
         self.update_pos()
+
+        self.pre_state = self.state
 
     def update_pos(self):
 
@@ -176,6 +170,20 @@ class Ghost(Entity):
         self.x += self.speed * cos(self.theta).__int__()
         self.y += self.speed * sin(self.theta).__int__()
 
+    def update_movement_possibilities(self):
+        '''
+        Method meant to calculate possible directions the entity can go in. This does not account for the no-reversal
+        rule- that is taken care of in the update method. This simply tests for a block in the desired position
+        :return: None
+        '''
+        #The .000001 is included to make sure that the method correctly detects the presence of a block on the game
+        # The constant's value does not matter, but it should be smaller than 1 / self.speed
+        self.can_up = self.x % 1 == 0.5 and self.game.grid[int(self.y + 0.5)][int(self.x)] != "b"
+        self.can_left = self.y % 1 == 0.5 and self.game.grid[int(self.y)][int(self.x - 0.5 - .00000001)] != "b"
+        self.can_down = self.x % 1 == 0.5 and self.game.grid[int(self.y - 0.5 - .000000001)][int(self.x)] != "b" and \
+            self.game.grid[int(self.y - 0.5 - .000000001)][int(self.x)] != "g"
+        self.can_right = self.y % 1 == 0.5 and self.game.grid[int(self.y)][int(self.x + 0.5)] != "b"
+
     def draw(self):
         '''
         Draw the appropriate sprite to the game
@@ -189,7 +197,7 @@ class Ghost(Entity):
             self.normal_sprites[int(self.count % 2)][0].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
             self.normal_sprites[int(self.count % 2)][0].draw()
 
-        elif self.state == "chase" or self.state == "wander" or self.state == "escape":
+        elif self.state == "chase" or self.state == "wander" or self.state == "escape" or self.state == "retreat":
             self.normal_sprites[int(self.count % 2)][self.theta].set_position(int(self.x * GRID_DIM),
                                                                               int(self.y * GRID_DIM))
             self.normal_sprites[int(self.count % 2)][self.theta].draw()
@@ -201,6 +209,11 @@ class Ghost(Entity):
         elif self.state == 'flashing':
             self.scared_sprites[int(self.count % 4)].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
             self.scared_sprites[int(self.count % 4)].draw()
+
+    def set_setpoint(self, x, y):
+
+        self.want_x = x
+        self.want_y = y
 
     def panic(self):
 
