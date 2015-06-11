@@ -49,12 +49,15 @@ class GraphicsGroup:
             self.glVertex2f(x + radius * cos(theta), y + radius * sin(theta))
         glEnd()
 
-    def odraw_segment(self, x, y, radius, start_theta, stop_theta, vertex_array, step=1):
+    def odraw_segment(self, x, y, radius, start_theta, stop_theta, vertex_array, step=2):
 
         # Even more optimisations on the draw_segment method- this adds relevant vertexes to a vertex array
+
         for i in range(step + 1):
             theta = start_theta + (stop_theta - start_theta) / step * i
-            vertex_array.extend((x + radius * cos(theta), y + radius * sin(theta)))
+            vertex_array.extend((self.xoff + x + radius * cos(theta), self.yoff + y + radius * sin(theta)))
+            if i != 0 and i != step:
+                vertex_array.extend((self.xoff + x + radius * cos(theta), self.yoff + y + radius * sin(theta)))
 
     def draw_line(self, x1, y1, x2, y2, vertex_array):
 
