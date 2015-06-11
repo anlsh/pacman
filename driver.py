@@ -33,7 +33,7 @@ class Driver(pyglet.window.Window):
         self.push_handlers(self.key_states)
 
         if self.key_states[pyglet.window.key.K] and not self.pre_add:
-            if self.number_players < self.game.governor.map_max_players
+            if self.number_players < self.game.governor.map_max_players:
                 self.game = Game("classic.map", wanted_players=self.number_players, xoff=0, yoff=100)
 
         if self.key_states[pyglet.window.key.O] and not self.pre_pause:
