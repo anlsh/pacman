@@ -3,14 +3,13 @@ from game import Game
 
 import pyglet
 from pyglet.gl import *
-import common as c
+from common import *
 from pyglet.clock import ClockDisplay
-from ctypes import pointer, sizeof
 
 
 class Driver(pyglet.window.Window):
 
-    def __init__(self, width, length, gd):
+    def __init__(self, width, length):
         super().__init__(width, length)
         self.w = width
         self.l = length
@@ -37,10 +36,9 @@ class Driver(pyglet.window.Window):
 
 if __name__ == "__main__":
 
-    gd = c.GRID_DIM
-    game = Driver(28*gd, 29*gd, gd)
+    game = Driver(28 * GRID_DIM, 29 * GRID_DIM)
 
-    pyglet.clock.schedule_interval(game.update, 1 / c.CLOCKS_PER_SEC)
+    pyglet.clock.schedule_interval(game.update, 1 / CLOCKS_PER_SEC)
     pyglet.clock.set_fps_limit(60)
 
     pyglet.app.run()

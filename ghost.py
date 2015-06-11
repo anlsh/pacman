@@ -95,19 +95,14 @@ class Ghost(Entity):
 
         #Based on the count and the current theta, draw a frame rotated at the appropriate angle
 
-        try:
-            self.normal_sprites[int(self.count % 2)][self.theta].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
-            self.normal_sprites[int(self.count % 2)][self.theta].draw()
-        except KeyError:
-            self.normal_sprites[0][0].set_position(self.x * GRID_DIM, self.y * GRID_DIM)
-            self.normal_sprites[0][0].draw()
-
         if self.state == "idle":
             self.normal_sprites[int(self.count % 2)][0].set_position(int(self.x * GRID_DIM), int(self.y * GRID_DIM))
             self.normal_sprites[int(self.count % 2)][0].draw()
 
-        elif self.state == "flashing":
-            pass
+        elif self.state == "chase" or self.state == "wander" or self.state == "escape":
+            self.normal_sprites[int(self.count % 2)][self.theta].set_position(int(self.x * GRID_DIM),
+                                                                              int(self.y * GRID_DIM))
+            self.normal_sprites[int(self.count % 2)][self.theta].draw()
 
     def update_pos(self):
 
@@ -163,7 +158,6 @@ class Ghost(Entity):
                         x -= 1
 
                     x += 1
-
 
         self.x += self.speed * cos(self.theta).__int__()
         self.y += self.speed * sin(self.theta).__int__()

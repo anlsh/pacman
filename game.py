@@ -19,7 +19,6 @@ class Game:
         :returns: Nothing
         '''
 
-        self.graphics_group = None
         self.players = []
         self.ghosts = []
         self.grid = []
