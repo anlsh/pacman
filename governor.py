@@ -17,7 +17,6 @@ class Governor:
 
         self.pup_time = None
         self.flash_time = None
-        self.map_max_player = 0
         
         self.pup_duration = 10
         self.flash_duration = 2
