@@ -4,7 +4,6 @@ from game import Game
 import pyglet
 from pyglet.gl import *
 from common import *
-from pyglet.clock import ClockDisplay
 
 
 class Driver(pyglet.window.Window):
@@ -20,8 +19,6 @@ class Driver(pyglet.window.Window):
         glClear(GL_COLOR_BUFFER_BIT)
         glEnableClientState(GL_VERTEX_ARRAY)
 
-        self.fps_display = pyglet.clock.ClockDisplay()
-
     def update(self, dt):
 
         for x in self.game.players:
@@ -32,7 +29,6 @@ class Driver(pyglet.window.Window):
     def on_draw(self):
         self.clear()
         self.game.draw()
-        self.fps_display.draw()
 
 if __name__ == "__main__":
 
