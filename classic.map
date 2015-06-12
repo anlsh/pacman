@@ -1,0 +1,42 @@
+#MAX_PLAYERS 2
+#PLAYERSPAWN 15.5 9.5
+#PLAYERSPAWN 16.5 9.5
+#BLINKYSPAWN 16.5 17.5
+#PINKYSPAWN 15.5 17.5
+#INKYSPAWN 13.5 17.5
+#CLYDESPAWN 18.5 17.5
+#PADDING 2 2
+#DIMENSIONS 28 29
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+ebbbbbbbbbbbbbbbbbbbbbbbbbbbbbbe
+ebbbbbbbbbbbbbbbbbbbbbbbbbbbbbbe
+ebbddddddddddddbbddddddddddddbbe
+ebbdbbbbdbbbbbdbbdbbbbbdbbbbdbbe
+ebbpbbbbdbbbbbdbbdbbbbbdbbbbpbbe
+ebbdbbbbdbbbbbdbbdbbbbbdbbbbdbbe
+ebbddddddddddddddddddddddddddbbe
+ebbdbbbbdbbdbbbbbbbbdbbdbbbbdbbe
+ebbdbbbbdbbdbbbbbbbbdbbdbbbbdbbe
+ebbddddddbbddddbbddddbbddddddbbe
+ebbbbbbbdbbbbbebbebbbbbdbbbbbbbe
+ebbbbbbbdbbbbbebbebbbbbdbbbbbbbe
+ebbbbbbbdbbeeeeeeeeeebbdbbbbbbbe
+bbbbbbbbdbbebbbggbbbebbdbbbbbbbb
+eeweeeeeeeeebggggggbeeeeeeeeewee
+bbbbbbbbdbbebbbbbbbbebbdbbbbbbbb
+ebbbbbbbdbbeeeeeeeeeebbdbbbbbbbe
+ebbbbbbbdbbebbbbbbbbebbdbbbbbbbe
+ebbbbbbbdbbebbbbbbbbebbdbbbbbbbe
+ebbddddddddddddbbddddddddddddbbe
+ebbdbbbbdbbbbbdbbdbbbbbdbbbbdbbe
+ebbdbbbbdbbbbbdbbdbbbbbdbbbbdbbe
+ebbpddbbddddddddddddddddbbddpbbe
+ebbbbdbbdbbdbbbbbbbbdbbdbbdbbbbe
+ebbbbdbbdbbdbbbbbbbbdbbdbbdbbbbe
+ebbddddddbbddddbbddddbbddddddbbe
+ebbdbbbbbbbbbbdbbdbbbbbbbbbbdbbe
+ebbdbbbbbbbbbbdbbdbbbbbbbbbbdbbe
+ebbddddddddddddddddddddddddddbbe
+ebbbbbbbbbbbbbbbbbbbbbbbbbbbbbbe
+ebbbbbbbbbbbbbbbbbbbbbbbbbbbbbbe
+eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
