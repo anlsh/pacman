@@ -13,7 +13,7 @@ from ctypes import pointer, sizeof
 
 class Game:
 
-    def __init__(self, handle="classic.map", wanted_players=1, xoff=0, yoff=0):
+    def __init__(self, handle="classic.map", wanted_players=1, total_dots_eaten=0, xoff=0, yoff=0):
         '''
         This is... a really big class. It parses a grid from a game file, and takes care of drawing the grid, updating
         entities, etc.
@@ -40,6 +40,7 @@ class Game:
         self.load_static_map(handle, self.xoff, self.yoff)
         self.governor = Governor(self, handle)
 
+        self.total_dots_eaten = total_dots_eaten
         self.dots_eaten = self.pups_eaten = 0
 
         self.init_buffers()
@@ -61,7 +62,7 @@ class Game:
         if not self.should_update:
             return None
 
-        if self.dots_eaten >= 236:
+        if self.total_dots_eaten % 236 == 0:
             self.level += 1
             self.load_static_map("classic.map", self.xoff, self.yoff)
             self.governor = Governor(self)
@@ -79,6 +80,7 @@ class Game:
                 self.grid[int(p.y)][int(p.x)] = "e"
                 self.score += 10
                 self.dots_eaten += 1
+                self.total_dots_eaten += 1
 
             if self.grid[int(p.y)][int(p.x)] == "p":
 
