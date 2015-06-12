@@ -8,9 +8,7 @@ from common import *
 
 class Driver(pyglet.window.Window):
 
-    def __init__(self, width, length, number_players=1):
-
-        self.number_players = number_players
+    def __init__(self, width, length):
 
         super().__init__(width, length)
         self.w = width
@@ -18,7 +16,7 @@ class Driver(pyglet.window.Window):
 
         self.key_states = pyglet.window.key.KeyStateHandler()
 
-        self.game = Game("classic.map", wanted_players=self.number_players, xoff=0, yoff=100)
+        self.game = Game("classic.map", wanted_players=1, xoff=0, yoff=100)
 
         self.pre_add = True
         self.pre_pause = True
@@ -33,8 +31,8 @@ class Driver(pyglet.window.Window):
         self.push_handlers(self.key_states)
 
         if self.key_states[pyglet.window.key.K] and not self.pre_add:
-            if self.number_players < self.game.governor.map_max_players:
-                self.game = Game("classic.map", wanted_players=self.number_players, xoff=0, yoff=100)
+            if self.game.wanted_players < self.game.governor.map_max_players:
+                self.game = Game("classic.map", self.game.wanted_players + 1, xoff=0, yoff=100)
 
         if self.key_states[pyglet.window.key.O] and not self.pre_pause:
             self.game.should_update = not self.game.should_update

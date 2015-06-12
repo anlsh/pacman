@@ -21,6 +21,9 @@ class Game:
         :returns: Nothing
         '''
 
+        self.xoff = xoff
+        self.yoff = yoff
+
         self.players = []
         self.ghosts = []
         self.grid = []
@@ -34,7 +37,7 @@ class Game:
 
         self.wanted_players = wanted_players
 
-        self.load_static_map(handle, xoff, yoff)
+        self.load_static_map(handle, self.xoff, self.yoff)
         self.governor = Governor(self, handle)
 
         self.dots_eaten = self.pups_eaten = 0
@@ -58,7 +61,7 @@ class Game:
         if not self.should_update:
             return None
 
-        if self.dots_eaten >= 40:
+        if self.dots_eaten >= 236:
             self.level += 1
             self.load_static_map("classic.map", self.xoff, self.yoff)
             self.governor = Governor(self)
@@ -105,7 +108,7 @@ class Game:
                             sleep(3)
                             self.over = True
 
-        self.lives_label.text = "Lives:" + str(self.lives)
+        self.lives_label.text = "Lives" + str(self.lives)
         self.score_label.text = "Score:" + str(self.score)
 
     def draw(self):
@@ -164,8 +167,8 @@ class Game:
 
                 if "#PADDING" in file_lines[i]:
                     args = file_lines[i].split()
-                    self.xoff = xoff-int(args[1]) * GRID_DIM
-                    self.yoff = yoff-int(args[2]) * GRID_DIM
+                    self.xoff = -int(args[1]) * GRID_DIM
+                    self.yoff = int(args[2]) * GRID_DIM
                     self.graphics_group = GraphicsGroup(self, x=self.xoff, y=self.yoff)
 
                     Entity.padding = [int(args[1]), int(args[2])]
